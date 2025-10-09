@@ -11,7 +11,7 @@ class ChatbotController extends Controller
     {
         $request->validate([
             'message' => 'required|string'
-        ]);
+        ]);@
 
         $response = Http::post('http://127.0.0.1:5000/chat', [
             'message' => $request->message
