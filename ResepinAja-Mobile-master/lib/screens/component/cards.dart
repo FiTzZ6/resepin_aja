@@ -59,7 +59,7 @@ class _CardItem_HoriState extends State<CardItem_Hori> {
                         ),
                       ),
                       Text(
-                        "${widget.data.jumlah_bahan} Bahan | ${widget.data.wkt_masak} Menit \n${widget.data.prs_resep} Porsi",
+                        "${widget.data.jumlah_bahan} Bahan | ${widget.data.wkt_masak} Menit \n${widget.data.prs_masak} Porsi",
                       ),
                     ],
                   ),

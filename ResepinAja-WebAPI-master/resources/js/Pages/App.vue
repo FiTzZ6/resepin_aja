@@ -5,22 +5,55 @@ import Login from './Login.vue';
 import Logout from './Logout.vue';
 import Register from './Register.vue';
 import Searchbar from './components/Searchbar.vue';
+import { ref } from 'vue'
+import axios from 'axios'
 
 const userData = usePage().props.auth_user;
+
+const message = ref('')
+const chats = ref([])
+const isOpen = ref(false)
+
+const toggleChat = () => {
+  isOpen.value = !isOpen.value
+}
+
+const sendMessage = async () => {
+  if (!message.value.trim()) return
+
+  const userMsg = message.value
+  message.value = ''
+
+  const { data } = await axios.post('/chatbot', { message: userMsg })
+
+  // ✅ Jika respons dari chatbot berupa redirect
+  if (data.type === 'redirect' && data.redirect_url) {
+    window.location.href = data.redirect_url
+    return
+  }
+
+  // ✅ Jika tidak redirect, tampilkan balasan teks di chat
+  chats.value.push({
+    user: userMsg,
+    bot: data.bot_response
+  })
+}
+
 
 </script>
 
 <template>
   <nav class="navbar navbar-expand-md" style="background-color: rgb(255, 110, 85)">
     <div class="container-fluid">
-      <Link class="navbar-brand p-0" href="/"><img src="../../../public/assets/Logo.png" alt="" width="75" height="75"></Link>
+      <Link class="navbar-brand p-0" href="/"><img src="../../../public/assets/Logo.png" alt="" width="75" height="75">
+      </Link>
       <button class="navbar-toggler bg-warning" type="button" data-bs-toggle="collapse"
         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
         aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <Searchbar/>
+        <Searchbar />
         <ul class="navbar-nav mb-2 mb-md-0">
           <li class="nav-item me-2">
             <Link class="nav-link active" aria-current="page" href="/">Beranda</Link>
@@ -32,7 +65,7 @@ const userData = usePage().props.auth_user;
           <li class="nav-item" v-if="userData">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <img src="../../../public/assets/muehe.png" class="me-1 rounded-5" alt="..." width="30" height="30" />
-              <span class="fw-bold text-dark">{{userData.username}}</span>
+              <span class="fw-bold text-dark">{{ userData.username }}</span>
             </a>
             <div class="dropdown-menu dropdown-menu-end me-2 p-0">
               <div
@@ -43,17 +76,17 @@ const userData = usePage().props.auth_user;
                     <li>
                       <Link href="/tambahresep"
                         class="btn btn-hover-light rounded-2 d-flex align-items-start gap-2 py-2 px-3 lh-sm text-start">
-                        <i class="bi bi-database-fill-add text-success" style="font-size: 24px;"></i>
-                        <div><strong class="d-block">Tambah Resep</strong> <small class="text-secondary">Tambahkan resep
-                            tersendiri</small></div>
+                      <i class="bi bi-database-fill-add text-success" style="font-size: 24px;"></i>
+                      <div><strong class="d-block">Tambah Resep</strong> <small class="text-secondary">Tambahkan resep
+                          tersendiri</small></div>
                       </Link>
                     </li>
                     <li>
                       <Link :href="`/tersimpanresep/${userData.id_user}`"
                         class="btn btn-hover-light rounded-2 d-flex align-items-start gap-2 py-2 px-3 lh-sm text-start">
-                        <i class="bi bi-bookmark-star-fill text-primary" style="font-size: 24px;"></i>
-                        <div><strong class="d-block">Resep Tersimpan</strong> <small class="text-secondary">Resep
-                            simpanan pengguna</small></div>
+                      <i class="bi bi-bookmark-star-fill text-primary" style="font-size: 24px;"></i>
+                      <div><strong class="d-block">Resep Tersimpan</strong> <small class="text-secondary">Resep
+                          simpanan pengguna</small></div>
                       </Link>
                     </li>
                   </ul>
@@ -64,8 +97,9 @@ const userData = usePage().props.auth_user;
                   <nav>
                     <ul class="d-flex flex-column gap-2 list-unstyled small">
                       <li>
-                        <Link :href='`/profil/${userData.id_user}`' class="dropdown-item text-dark fw-bold btn btn-light">
-                          Profil
+                        <Link :href='`/profil/${userData.id_user}`'
+                          class="dropdown-item text-dark fw-bold btn btn-light">
+                        Profil
                         </Link>
                       </li>
                       <li>
@@ -74,7 +108,7 @@ const userData = usePage().props.auth_user;
                           Logout
                         </button>
                       </li>
-                      
+
                     </ul>
                   </nav>
                 </div>
@@ -82,12 +116,10 @@ const userData = usePage().props.auth_user;
             </div>
           </li>
           <li class="nav-item" v-else>
-            <li>
-              <button type="button" class="fw-bold btn btn-outline-dark"
-                data-bs-toggle="modal" data-bs-target="#LoginPanel">
-                Login
-              </button>
-            </li>
+            <button type="button" class="fw-bold btn btn-outline-dark" data-bs-toggle="modal"
+              data-bs-target="#LoginPanel">
+              Login
+            </button>
           </li>
         </ul>
       </div>
@@ -96,7 +128,7 @@ const userData = usePage().props.auth_user;
 
   <!-- KONTEN -->
   <div class="container position-relative">
-    <slot/>
+    <slot />
   </div>
   <div v-if="userData">
     <Logout></Logout>
@@ -105,6 +137,38 @@ const userData = usePage().props.auth_user;
     <Login></Login>
     <Register></Register>
   </div>
+
+  <!-- 🧠 Chatbot Widget -->
+  <div class="chatbot-container fixed-bottom end-0 p-3">
+    <div v-if="isOpen" class="card shadow-lg" style="width: 350px;">
+      <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+        <span>Asisten Resepin Aja 🍳</span>
+        <button @click="toggleChat" class="btn btn-sm btn-light">×</button>
+      </div>
+
+      <div class="card-body" style="height: 300px; overflow-y: auto;">
+        <div v-for="(chat, index) in chats" :key="index" class="mb-3">
+          <div class="text-primary fw-bold">Kamu:</div>
+          <div class="bg-light p-2 rounded">{{ chat.user }}</div>
+          <div class="text-success fw-bold mt-1">Chatbot:</div>
+          <div class="bg-warning-subtle p-2 rounded">{{ chat.bot }}</div>
+        </div>
+      </div>
+
+      <div class="card-footer d-flex">
+        <input v-model="message" @keyup.enter="sendMessage" placeholder="Tanya resep apa hari ini..."
+          class="form-control me-2" />
+        <button @click="sendMessage" class="btn btn-danger">Kirim</button>
+      </div>
+    </div>
+
+    <!-- Tombol untuk buka chatbot -->
+    <button v-else class="btn btn-danger rounded-circle shadow-lg" style="width: 60px; height: 60px;"
+      @click="toggleChat">
+      💬
+    </button>
+  </div>
+
 
   <!-- FOOTER -->
   <div class="container">
@@ -135,3 +199,12 @@ const userData = usePage().props.auth_user;
   </div>
 </template>
 
+<style scoped>
+.chatbot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  /* biar muncul di atas elemen lain */
+}
+</style>

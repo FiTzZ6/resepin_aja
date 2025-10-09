@@ -32,7 +32,7 @@ const data = defineProps({
                       {{ resep.deskripsi }}
                     </p>
                     <p class="text-truncate truncate-mod">
-                      {{resep.jumlah_bahan}} Bahan | {{resep.wkt_masak}} menit | {{resep.prs_resep}} Porsi
+                      {{resep.jumlah_bahan}} Bahan | {{resep.wkt_masak}} menit | {{resep.prs_masak}} Porsi
                     </p>
                     <h5 class="text-warning fw-bold">
                       <StarRating :rating="resep.bintang" />

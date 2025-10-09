@@ -27,12 +27,12 @@ class RecipeController extends Controller
                 'resep.judul',
                 'resep.gambar',
                 'resep.wkt_masak',
-                'resep.prs_resep',
+                'resep.prs_masak',
                 DB::raw('CAST(ROUND(AVG(rating.bintang), 1) AS float) as bintang'),
                 DB::raw('COUNT(DISTINCT rating.id_user) as jml_bintang'),
                 DB::raw('COUNT(bahan_resep.nama_bahan) as jumlah_bahan')
             )
-            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_resep')
+            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_masak')
             ->orderBy('resep.created_at', 'desc')
             ->get();
 
@@ -48,13 +48,13 @@ class RecipeController extends Controller
                 'resep.judul',
                 'resep.gambar',
                 'resep.wkt_masak',
-                'resep.prs_resep',
+                'resep.prs_masak',
                 'resep.deskripsi',
                 DB::raw('CAST(ROUND(AVG(rating.bintang), 1) AS float) as bintang'),
                 DB::raw('COUNT(DISTINCT rating.id_user) as jml_bintang'),
                 DB::raw('COUNT(bahan_resep.nama_bahan) as jumlah_bahan')
             )
-            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_resep', 'resep.deskripsi')
+            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_masak', 'resep.deskripsi')
             ->orderBy('bintang', 'desc')->limit(3)
             ->get();
         return $items;
@@ -97,22 +97,24 @@ class RecipeController extends Controller
                 'resep.judul',
                 'resep.gambar',
                 'resep.wkt_masak',
-                'resep.prs_resep',
+                'resep.prs_masak',
                 DB::raw('CAST(ROUND(AVG(rating.bintang), 1) AS float) as bintang'),
                 DB::raw('COUNT(DISTINCT rating.id_user) as jml_bintang'),
                 DB::raw('COUNT(bahan_resep.nama_bahan) as jumlah_bahan')
             )
-            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_resep')
+            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_masak')
             ->get();
         return $items;
     }
-    public function APIshowRecipeSelf($id_user){
+    public function APIshowRecipeSelf($id_user)
+    {
         $resepProfile = $this->showRecipeSelf($id_user);
         return response()->json([
             'data' => $resepProfile,
         ], 200);
     }
-    public function ProfilePage($id_user, UserController $userController){
+    public function ProfilePage($id_user, UserController $userController)
+    {
         $resepProfile = $this->showRecipeSelf($id_user);
         $userProfile = $userController->showProfile($id_user);
         return Inertia::render('Profil', [
@@ -145,7 +147,7 @@ class RecipeController extends Controller
                 'resep.updated_at',
                 'users.username',
                 'resep.wkt_masak',
-                'resep.prs_resep',
+                'resep.prs_masak',
                 'resep.ktg_masak'
             )
             ->first();
@@ -165,9 +167,10 @@ class RecipeController extends Controller
 
         return compact('resep', 'alat', 'bahan', 'langkah');
     }
-    public function APIshowDetailRecipe($id_user){
+    public function APIshowDetailRecipe($id_user)
+    {
         $resepDetail = $this->showDetailRecipe($id_user);
-         return response()->json([
+        return response()->json([
             'data' => [
                 'resep' => $resepDetail['resep'],
                 'alat' => $resepDetail['alat'],
@@ -176,7 +179,8 @@ class RecipeController extends Controller
             ]
         ], 200);
     }
-    public function DetailPage($id_user){
+    public function DetailPage($id_user)
+    {
         $resepDetail = $this->showDetailRecipe($id_user);
         return Inertia::render('Detail', [
             'resepDetail' => [
@@ -189,17 +193,19 @@ class RecipeController extends Controller
     }
 
 
-    public function AddRecipePage(){
+    public function AddRecipePage()
+    {
         return Inertia::render('TambahResep');
     }
-    public function addRecipe(Request $request){
+    public function addRecipe(Request $request)
+    {
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'gambar' => 'required|image|max:2048',
             'id_user' => 'required',
             'wkt_masak' => 'required',
-            'prs_resep' => 'required',
+            'prs_masak' => 'required',
             'ktg_masak' => 'required',
             'bahan' => 'required|json',
             'jumlah' => 'required|json',
@@ -216,7 +222,7 @@ class RecipeController extends Controller
             'id_user' => $validated['id_user'],
             'gambar' => str_replace('public/', '', $imagePath),
             'wkt_masak' => $validated['wkt_masak'],
-            'prs_resep' => $validated['prs_resep'],
+            'prs_masak' => $validated['prs_masak'],
             'ktg_masak' => $validated['ktg_masak'],
         ]);
 
@@ -249,10 +255,11 @@ class RecipeController extends Controller
             ]);
         }
         return $request->wantsJson() ?
-        response()->json(['message' => 'Upload berhasil'], 200)
-        : redirect()->back()->with('success', 'Upload berhasil');  
+            response()->json(['message' => 'Upload berhasil'], 200)
+            : redirect()->back()->with('success', 'Upload berhasil');
     }
-    public function showSavedRecipe($id_user){
+    public function showSavedRecipe($id_user)
+    {
         $items = DB::table('saved')
             ->join('users', 'saved.id_user', '=', 'users.id_user')
             ->join('resep', 'saved.id_resep', '=', 'resep.id_resep')
@@ -264,22 +271,24 @@ class RecipeController extends Controller
                 'resep.judul',
                 'resep.gambar',
                 'resep.wkt_masak',
-                'resep.prs_resep',
+                'resep.prs_masak',
                 DB::raw('CAST(ROUND(AVG(rating.bintang), 1) AS float) as bintang'),
                 DB::raw('COUNT(DISTINCT rating.id_user) as jml_bintang'),
                 DB::raw('COUNT(bahan_resep.nama_bahan) as jumlah_bahan')
             )
-            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_resep')
+            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_masak')
             ->get();
         return $items;
     }
-    public function APIshowSavedRecipe($id_user){
+    public function APIshowSavedRecipe($id_user)
+    {
         $resepSaved = $this->showSavedRecipe($id_user);
         return response()->json([
             'data' => $resepSaved,
         ], 200);
     }
-    public function SavedPage($id_user){
+    public function SavedPage($id_user)
+    {
         $resepSaved = $this->showSavedRecipe($id_user);
         return Inertia::render('Tersimpan', [
             'resepSaved' => $resepSaved,
@@ -287,8 +296,9 @@ class RecipeController extends Controller
     }
 
 
-    
-    public function FilterPage(){
+
+    public function FilterPage()
+    {
         return Inertia::render('Search');
     }
     public function filterProduk(Request $request)
@@ -297,43 +307,67 @@ class RecipeController extends Controller
             ->join('bahan_resep', 'resep.id_resep', '=', 'bahan_resep.id_resep')
             ->leftJoin('rating', 'resep.id_resep', '=', 'rating.id_resep');
 
+        // 🔍 Filter judul resep
         if ($request->filled('cari_resep')) {
             $query->where('resep.judul', 'like', '%' . $request->input('cari_resep') . '%');
         }
 
+        // 👤 Filter berdasarkan username pembuat
         if ($request->filled('user_resep')) {
             $userIds = User::where('username', 'like', '%' . $request->input('user_resep') . '%')
-                ->get('id_user');
+                ->pluck('id_user');
             $query->whereIn('resep.id_user', $userIds);
         }
 
+        // 🍲 Filter kategori
         if ($request->filled('ktg_masak')) {
-            $query->whereIn('resep.ktg_masak', $request->input('ktg_masak'));
+            $query->whereIn('resep.ktg_masak', (array) $request->input('ktg_masak'));
         }
 
+        // 🧄 Filter berdasarkan bahan (misal: /resepcari?bahan=telur,cabai)
+        if ($request->filled('bahan')) {
+            $bahanList = array_map('trim', explode(',', $request->input('bahan')));
+
+            $query->whereIn('resep.id_resep', function ($subquery) use ($bahanList) {
+                $subquery->select('id_resep')
+                    ->from('bahan_resep')
+                    ->where(function ($q) use ($bahanList) {
+                        foreach ($bahanList as $bahan) {
+                            $q->orWhere('nama_bahan', 'like', '%' . $bahan . '%');
+                        }
+                    });
+            });
+        }
+
+
+
+        // 📅 Urutkan berdasarkan tanggal
         if ($request->filled('tgl_masak')) {
             $query->orderBy('resep.created_at', $request->input('tgl_masak'));
         }
+
 
         $produk = $query->select(
             'resep.id_resep',
             'resep.judul',
             'resep.gambar',
             'resep.wkt_masak',
-            'resep.prs_resep',
+            'resep.prs_masak',
             DB::raw('CAST(ROUND(AVG(rating.bintang), 1) AS float) as bintang'),
             DB::raw('COUNT(DISTINCT rating.id_user) as jml_bintang'),
             DB::raw('COUNT(bahan_resep.nama_bahan) as jumlah_bahan')
         )
-            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_resep')
+            ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_masak')
             ->get();
 
         return response()->json([
             'data' => $produk
         ], 200);
     }
-    
-    public function UpdatePage($id_user){
+
+
+    public function UpdatePage($id_user)
+    {
         $resepDetail = $this->showDetailRecipe($id_user);
         return Inertia::render('EditResep', [
             'existingResep' => [
@@ -351,7 +385,7 @@ class RecipeController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'wkt_masak' => 'required',
-            'prs_resep' => 'required',
+            'prs_masak' => 'required',
             'ktg_masak' => 'required',
             'bahan' => 'required|json',
             'jumlah' => 'required|json',
@@ -375,7 +409,7 @@ class RecipeController extends Controller
             $resep->judul = $request->judul;
             $resep->deskripsi = $request->deskripsi;
             $resep->wkt_masak = $request->wkt_masak;
-            $resep->prs_resep = $request->prs_resep;
+            $resep->prs_masak = $request->prs_masak;
             $resep->ktg_masak = $request->ktg_masak;
 
             if ($request->hasFile('gambar')) {
@@ -481,4 +515,6 @@ class RecipeController extends Controller
             ], 500);
         }
     }
+
+
 }

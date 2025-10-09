@@ -4,17 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChatbotController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 // Route::get('/', function () {
 //     return view('show');
@@ -43,5 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::delete('/deleteresep/{id_resep}', [RecipeController::class, 'deleteResep']);
     Route::get('/logout', [AuthController::class, 'logout']);
 });
+
+Route::post('/chatbot', [ChatbotController::class, 'sendMessage']);
+
 
 

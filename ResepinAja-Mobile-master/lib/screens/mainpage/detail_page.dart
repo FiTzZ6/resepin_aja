@@ -198,7 +198,7 @@ class _DetailPageState extends State<DetailPage> {
                               "${data_detail!.ktg_masak}",
                               style: TextStyle(color: Colors.brown[800], fontWeight: FontWeight.w600),
                             ),
-                            Text("${data_detail!.wkt_masak} Menit, untuk ${data_detail!.prs_resep} Porsi"),
+                            Text("${data_detail!.wkt_masak} Menit, untuk ${data_detail!.prs_masak} Porsi"),
                             SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,

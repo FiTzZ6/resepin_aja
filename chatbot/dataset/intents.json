@@ -1,0 +1,114 @@
+{
+  "intents": [
+    {
+      "tag": "salam",
+      "patterns": ["Halo", "Hai", "Selamat pagi", "Selamat siang", "Apa kabar?"],
+      "responses": [
+        "Halo! Lagi pengen masak apa hari ini?",
+        "Hai! Mau cari resep apa nih?",
+        "Selamat datang di asisten resep! 😊"
+      ]
+    },
+    {
+      "tag": "nasi_goreng",
+      "patterns": [
+        "Cara buat nasi goreng",
+        "Resep nasi goreng",
+        "Masak nasi goreng gimana?",
+        "Gimana cara bikin nasi goreng?"
+      ],
+      "responses": [
+        "Berikut resep nasi goreng sederhana: tumis bawang putih dan bawang merah, tambahkan telur dan nasi, beri kecap manis, garam, dan merica. Aduk rata, jadi deh!",
+        "Untuk nasi goreng enak, tambahkan sedikit saus tiram dan potongan ayam atau sosis biar makin mantap!"
+      ]
+    },
+    {
+      "tag": "ayam_goreng",
+      "patterns": [
+        "Cara buat ayam goreng",
+        "Resep ayam goreng",
+        "Masak ayam goreng gimana?",
+        "Gimana cara bikin ayam goreng?"
+      ],
+      "responses": [
+        "Cuci ayam, marinasi dengan bawang putih, ketumbar, garam, dan kunyit. Diamkan 30 menit lalu goreng sampai kecokelatan.",
+        "Tips: gunakan api sedang supaya ayam matang merata dan renyah!"
+      ]
+    },
+    {
+      "tag": "soto_ayam",
+      "patterns": [
+        "Cara buat soto ayam",
+        "Resep soto ayam",
+        "Masak soto ayam gimana?",
+        "Gimana cara bikin soto ayam?"
+      ],
+      "responses": [
+        "Rebus ayam dengan serai, daun salam, dan jahe. Tumis bumbu halus (bawang putih, bawang merah, kemiri, kunyit), lalu campur ke kuah ayam. Tambah soun dan telur rebus.",
+        "Soto ayam khas Indonesia! Sajikan dengan sambal dan jeruk nipis biar segar!"
+      ]
+    },
+    {
+      "tag": "rendang",
+      "patterns": [
+        "Resep rendang",
+        "Cara buat rendang",
+        "Masak rendang gimana?",
+        "Gimana cara bikin rendang?"
+      ],
+      "responses": [
+        "Rendang dibuat dari daging sapi dimasak lama dengan santan dan bumbu halus (cabai, bawang, jahe, lengkuas, kunyit, serai). Masak sampai kering dan berminyak.",
+        "Kunci rendang enak adalah sabar! Masak dengan api kecil biar bumbunya meresap sempurna."
+      ]
+    },
+    {
+      "tag": "bahan_pengganti",
+      "patterns": [
+        "Gak ada kecap manis bisa diganti apa?",
+        "Kalau gak punya santan pakai apa?",
+        "Boleh ganti daging sapi pakai ayam gak?"
+      ],
+      "responses": [
+        "Kalau gak ada kecap manis, bisa pakai campuran kecap asin dan sedikit gula merah cair.",
+        "Kalau gak ada santan, bisa diganti susu cair tapi rasanya lebih ringan.",
+        "Tentu boleh! Daging ayam bisa jadi alternatif lebih cepat matang."
+      ]
+    },
+    {
+      "tag": "makanan_ringan",
+      "patterns": [
+        "Resep pisang goreng",
+        "Cara buat martabak telur mini",
+        "Gimana bikin risol?",
+        "Cemilan sore enak apa ya?"
+      ],
+      "responses": [
+        "Pisang goreng: potong pisang, celupkan ke adonan tepung terigu + gula, lalu goreng sampai keemasan.",
+        "Martabak telur mini: kulit lumpia isi telur dan daun bawang, goreng sampai renyah!",
+        "Risol isi sayur atau ayam bisa jadi cemilan enak, goreng pakai api sedang ya!"
+      ]
+    },
+    {
+      "tag": "terimakasih",
+      "patterns": ["Terima kasih", "Makasih ya", "Thanks"],
+      "responses": [
+        "Sama-sama! Selamat mencoba resepnya! 🍳",
+        "Senang bisa bantu kamu! 😊"
+      ]
+    },
+    {
+      "tag": "perpisahan",
+      "patterns": ["Dadah", "Sampai jumpa", "Bye"],
+      "responses": [
+        "Sampai jumpa lagi di resep berikutnya!",
+        "Dadah! Selamat masak! 👋"
+      ]
+    },
+        {
+      "tag": "cari_resep",
+      "patterns": ["Cari resep ayam", "Ada resep nasi goreng?", "Resep dengan telur", "Resep pakai cabai"],
+      "responses": ["Baik, saya bantu carikan resepnya ya..."]
+    }
+    
+  ]
+}

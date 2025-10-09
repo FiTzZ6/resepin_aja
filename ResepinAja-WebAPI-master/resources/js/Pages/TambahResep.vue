@@ -54,7 +54,7 @@ const submitResep = async () => {
   formData.append('gambar', resep.value.gambar);
   formData.append('id_user', resep.value.id_user);
   formData.append('wkt_masak', resep.value.waktu_masak);
-  formData.append('prs_resep', resep.value.porsi_masak);
+  formData.append('prs_masak', resep.value.porsi_masak);
   formData.append('ktg_masak', resep.value.kategori_masak);
   formData.append('bahan', JSON.stringify(resep.value.bahan.map(b => b.nama_bahan)));
   formData.append('jumlah', JSON.stringify(resep.value.bahan.map(b => b.jumlah_bahan)));
@@ -63,7 +63,7 @@ const submitResep = async () => {
   formData.append('langkah', JSON.stringify(resep.value.langkah.map(l => l.cara_langkah)));
 
   try {
-    const response = await fetch('/api/addresep', {
+    const response = await fetch('/addresep', {
       method: 'POST',
       body: formData,
       headers: {

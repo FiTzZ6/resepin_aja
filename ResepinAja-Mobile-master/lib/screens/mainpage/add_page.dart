@@ -103,7 +103,7 @@ class _AddRecipePageState extends State<AddRecipePage> {
         request.fields['judul'] = _judulController.text;
         request.fields['deskripsi'] = _deskripsiController.text;
         request.fields['wkt_masak'] = _waktuController.text;
-        request.fields['prs_resep'] = _porsiController.text;
+        request.fields['prs_masak'] = _porsiController.text;
         request.fields['ktg_masak'] = kategori!;
         request.fields['id_user'] = AppData().id_user.toString();
         request.fields['bahan'] = jsonEncode(_bahanControllers.map((c) => c.text).toList());

@@ -30,7 +30,7 @@ class Recipeservice {
               json['judul'] as String,
               json['gambar'] as String,
               json['wkt_masak'] as int,
-              json['prs_resep'] as int,
+              json['prs_masak'] as int,
               json['jumlah_bahan'] as int,
             ),
           )
@@ -57,7 +57,7 @@ class Recipeservice {
               json['judul'] as String,
               json['gambar'] as String,
               json['wkt_masak'] as int,
-              json['prs_resep'] as int,
+              json['prs_masak'] as int,
               json['jumlah_bahan'] as int,
             ),
           )
@@ -86,7 +86,7 @@ class Recipeservice {
               json['judul'] as String,
               json['gambar'] as String,
               json['wkt_masak'] as int,
-              json['prs_resep'] as int,
+              json['prs_masak'] as int,
               json['jumlah_bahan'] as int,
             ),
           )
@@ -113,7 +113,7 @@ class Recipeservice {
               json['judul'] as String,
               json['gambar'] as String,
               json['wkt_masak'] as int,
-              json['prs_resep'] as int,
+              json['prs_masak'] as int,
               json['jumlah_bahan'] as int,
             ),
           )
@@ -146,7 +146,7 @@ class Recipeservice {
               json['judul'] as String,
               json['gambar'] as String,
               json['wkt_masak'] as int,
-              json['prs_resep'] as int,
+              json['prs_masak'] as int,
               json['jumlah_bahan'] as int,
             ),
           )
@@ -214,7 +214,7 @@ class Recipeservice {
           resep['username'] as String,
           resep['bintang'].toString(),
           resep['wkt_masak'] as int,
-          resep['prs_resep'] as int,
+          resep['prs_masak'] as int,
           resep['ktg_masak'] as String,
           alatList,
           bahanList,

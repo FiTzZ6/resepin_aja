@@ -38,7 +38,7 @@ class _EditRecipePageState extends State<EditRecipePage> {
     _judulController = TextEditingController(text: widget.recipe.judul);
     _deskripsiController = TextEditingController(text: widget.recipe.deskripsi);
     _waktuController = TextEditingController(text: widget.recipe.wkt_masak.toString());
-    _porsiController = TextEditingController(text: widget.recipe.prs_resep.toString());
+    _porsiController = TextEditingController(text: widget.recipe.prs_masak.toString());
     kategori = widget.recipe.ktg_masak;
     _currentImageUrl = "http://192.168.100.9:8000/storage/${widget.recipe.gambar}";
 
@@ -122,7 +122,7 @@ class _EditRecipePageState extends State<EditRecipePage> {
         request.fields['deskripsi'] = _deskripsiController.text;
         request.fields['_method'] = 'PUT';
         request.fields['wkt_masak'] = _waktuController.text;
-        request.fields['prs_resep'] = _porsiController.text;
+        request.fields['prs_masak'] = _porsiController.text;
         request.fields['ktg_masak'] = kategori!;
         request.fields['jumlah'] = jsonEncode(_jumlahControllers.map((c) => c.text).toList());
         request.fields['satuan'] = jsonEncode(satuan_bahan.toList());

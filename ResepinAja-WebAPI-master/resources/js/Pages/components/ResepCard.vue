@@ -31,7 +31,7 @@ const user = usePage().props.auth_user;
                 <h5 class="d-block text-truncate fw-bold">{{ resepData.judul }}</h5>
                 <p class="text-truncate truncate-mod">
                     {{ resepData.jumlah_bahan }} Bahan | {{ resepData.wkt_masak }} menit <br>
-                    {{ resepData.prs_resep }} Porsi
+                    {{ resepData.prs_masak }} Porsi
                 </p>
                 <h6 class="text-warning fw-bold align-bottom">
                     <StarRating :rating="resepData.bintang" />

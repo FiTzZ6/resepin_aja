@@ -190,7 +190,7 @@ const deleteResep = async (id_resep) => {
                     <div class="col-4"><i class="bi bi-fork-knife"></i> {{ resepDetail['resep'].ktg_masak }}</div>
                     <div class="col-4"><i class="bi bi-stopwatch-fill"></i> {{ resepDetail['resep'].wkt_masak }} Menit
                     </div>
-                    <div class="col-4"><i class="bi bi-person-fill"></i> {{ resepDetail['resep'].prs_resep }} Porsi
+                    <div class="col-4"><i class="bi bi-person-fill"></i> {{ resepDetail['resep'].prs_masak }} Porsi
                     </div>
                 </div>
                 <p>{{ resepDetail['resep'].deskripsi }}</p>

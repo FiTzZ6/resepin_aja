@@ -15,7 +15,7 @@ const resep = ref({
   gambar: null,
   deskripsi: props.existingResep['resep']?.deskripsi || '',
   waktu_masak: props.existingResep['resep']?.wkt_masak || '',
-  porsi_masak: props.existingResep['resep']?.prs_resep || '',
+  porsi_masak: props.existingResep['resep']?.prs_masak || '',
   kategori_masak: props.existingResep['resep']?.ktg_masak || 'Makanan Ringan',
   id_user: props.existingResep['resep']?.id_user,
   alat: props.existingResep['alat']?.map(a => ({ nama_alat: a.nama_alat })) || [{ nama_alat: '' }],
@@ -74,7 +74,7 @@ const submitResep = async () => {
   }
   formData.append('id_user', resep.value.id_user);
   formData.append('wkt_masak', resep.value.waktu_masak);
-  formData.append('prs_resep', resep.value.porsi_masak);
+  formData.append('prs_masak', resep.value.porsi_masak);
   formData.append('ktg_masak', resep.value.kategori_masak);
   formData.append('bahan', JSON.stringify(resep.value.bahan.map(b => b.nama_bahan)));
   formData.append('jumlah', JSON.stringify(resep.value.bahan.map(b => b.jumlah_bahan)));
