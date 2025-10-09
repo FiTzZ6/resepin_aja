@@ -16,7 +16,7 @@ use App\Http\Controllers\ChatbotController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::get('/', [RecipeController::class, 'HomePage'])->name('home');
 Route::get('/detailresep/{id_resep}', [ RecipeController::class, 'DetailPage']);

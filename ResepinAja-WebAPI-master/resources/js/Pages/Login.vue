@@ -1,24 +1,49 @@
 <script setup>
-import { useForm, usePage } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import axios from 'axios'
 
-const form = useForm({
-  username: '',
-  password: '',
-})
+// Ref untuk form login
+const username = ref('')
+const password = ref('')
 
-function submit() {
-  form.post('/login', {
-    onSuccess: () => {
-      const loginModal = new bootstrap.Modal(document.getElementById('LoginPanel'))
+// Submit login
+const submit = async () => {
+  try {
+    // Ambil CSRF cookie dulu
+    await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie', { withCredentials: true });
+    const res = await axios.post('http://127.0.0.1:8000/login', {
+      username: username.value,
+      password: password.value
+    }, { withCredentials: true });
+    console.log('Login berhasil', res.data)
+
+    // Tutup modal
+    const loginModalEl = document.getElementById('LoginPanel')
+    if (loginModalEl) {
+      const loginModal = bootstrap.Modal.getOrCreateInstance(loginModalEl)
       loginModal.hide()
-      form.reset()
-      location.reload()
     }
-  })
+
+    // Reset form
+    username.value = ''
+    password.value = ''
+
+    // Reload halaman untuk update status login
+    location.reload()
+
+  } catch (err) {
+    console.error(err)
+    if (err.response?.data) {
+      alert(Object.values(err.response.data).flat().join('\n'))
+    } else {
+      alert('Login gagal. Cek console.')
+    }
+  }
 }
 </script>
 
-<template><!-- LOGIN -->
+<template>
+  <!-- LOGIN MODAL -->
   <div class="modal fade" id="LoginPanel" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content rounded-4 shadow">
@@ -29,17 +54,23 @@ function submit() {
         <div class="modal-body p-5 pt-0">
           <form @submit.prevent="submit">
             <div class="form-floating mb-3">
-              <input type="text" class="form-control rounded-3" id="floatingInput" placeholder="Gatonanju" v-model="form.username" required/>
-              <label for="floatingInput">Username</label>
+              <input type="text" class="form-control rounded-3" id="floatingUsername" placeholder="Username"
+                v-model="username" required />
+              <label for="floatingUsername">Username</label>
             </div>
             <div class="form-floating mb-3">
-              <input type="password" class="form-control rounded-3" id="floatingPassword" placeholder="Pass****" v-model="form.password" required/>
+              <input type="password" class="form-control rounded-3" id="floatingPassword" placeholder="Password"
+                v-model="password" required />
               <label for="floatingPassword">Password</label>
             </div>
-            <button class="w-100 mb-3 btn btn-lg rounded-3 btn-dark" type="submit">Sign up</button>
+            <button class="w-100 mb-3 btn btn-lg rounded-3 btn-dark" type="submit">
+              Masuk
+            </button>
           </form>
           <small class="text-body-secondary">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#RegisterPanel">Daftar disini</a>, jika belum mempunyai akun</small>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#RegisterPanel">Daftar disini</a>, jika belum mempunyai
+            akun
+          </small>
         </div>
       </div>
     </div>
