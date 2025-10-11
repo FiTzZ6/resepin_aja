@@ -10,8 +10,8 @@ const password = ref('')
 const submit = async () => {
   try {
     // Ambil CSRF cookie dulu
-    await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie', { withCredentials: true });
-    const res = await axios.post('http://127.0.0.1:8000/login', {
+    await axios.get('http://localhost:8000/sanctum/csrf-cookie', { withCredentials: true });
+    const res = await axios.post('http://localhost:8000/login', {
       username: username.value,
       password: password.value
     }, { withCredentials: true });

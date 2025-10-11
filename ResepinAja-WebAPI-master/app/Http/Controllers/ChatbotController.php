@@ -10,21 +10,34 @@ class ChatbotController extends Controller
     public function sendMessage(Request $request)
     {
         $request->validate([
-            'message' => 'required|string'
-        ]);@
-
-        $response = Http::post('http://127.0.0.1:5000/chat', [
-            'message' => $request->message
+            'message' => 'required|string',
         ]);
 
-        $botResponse = $response->json();
+        try {
+            // Kirim pesan ke Flask chatbot API
+            $response = Http::timeout(10)->post('http://localhost:5000/chat', [
+                'message' => $request->input('message'),
+            ]);
 
-        return response()->json([
-            'user_message' => $request->message,
-            'bot_response' => $botResponse['message'] ?? 'Maaf, chatbot tidak merespons.',
-            'redirect_url' => $botResponse['url'] ?? null,
-            'type' => $botResponse['type'] ?? 'text'
-        ]);
-
+            // Jika Flask merespon dengan sukses
+            if ($response->successful()) {
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $response->json(),
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Gagal menerima respon dari Chatbot Python.',
+                    'error' => $response->body(),
+                ], $response->status());
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tidak dapat terhubung ke server Chatbot Python.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

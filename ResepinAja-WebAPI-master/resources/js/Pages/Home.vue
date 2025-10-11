@@ -23,7 +23,7 @@ const data = defineProps({
             <Link :href='`/detailresep/${resep.id_resep}`' class="text-light">
               <div class="row">
                 <div class="col-6 d-none d-md-inline-block col-md-4 col-lg-3">
-                  <img :src='`http://127.0.0.1:8000/storage/${resep.gambar}`' class="d-block w-100 rounded-start-4" style="height: 225px;" alt="..." />
+                  <img :src='`http://localhost:8000/storage/${resep.gambar}`' class="d-block w-100 rounded-start-4" style="height: 225px;" alt="..." />
                 </div>
                 <div class="col-12 col-md-8 col-lg-9">
                   <div class="p-3 ps-md-0">

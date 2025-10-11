@@ -161,7 +161,7 @@ const deleteResep = async (id_resep) => {
     <App>
         <div class="row mt-3">
             <div class="col-12 col-sm-5 col-md-4">
-                <img :src='`http://127.0.0.1:8000/storage/${resepDetail["resep"].gambar}`' alt=""
+                <img :src='`http://localhost:8000/storage/${resepDetail["resep"].gambar}`' alt=""
                     class="w-100 rounded-4">
             </div>
             <div class="col-12 col-sm-7 col-md-8 py-3">

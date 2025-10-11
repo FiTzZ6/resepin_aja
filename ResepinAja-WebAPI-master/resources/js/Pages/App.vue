@@ -24,19 +24,30 @@ const sendMessage = async () => {
   const userMsg = message.value
   message.value = ''
 
-  const { data } = await axios.post('/chatbot', { message: userMsg })
+  chats.value.push({ user: userMsg, bot: '...' })
 
-  // ✅ Jika respons dari chatbot berupa redirect
-  if (data.type === 'redirect' && data.redirect_url) {
-    window.location.href = data.redirect_url
-    return
+  try {
+    const res = await axios.post('/api/chatbot', { message: userMsg })
+    const data = res.data.data
+
+    // ← ganti bagian ini
+    // Jika chatbot merespon dengan redirect
+    if (data.type === "redirect" && data.url) {
+      chats.value[chats.value.length - 1].bot = data.message || "Mengarahkan ke halaman terkait..."
+
+      // Tunggu sebentar biar pesannya muncul dulu, lalu redirect
+      setTimeout(() => {
+        window.location.href = data.url
+      }, 1500)  // redirect setelah 1.5 detik
+    } else {
+      // Jika hanya pesan biasa
+      chats.value[chats.value.length - 1].bot = data.message || data.bot_response
+    }
+
+  } catch (error) {
+    console.error(error)
+    chats.value[chats.value.length - 1].bot = '⚠️ Terjadi kesalahan saat menghubungi chatbot.'
   }
-
-  // ✅ Jika tidak redirect, tampilkan balasan teks di chat
-  chats.value.push({
-    user: userMsg,
-    bot: data.bot_response
-  })
 }
 
 

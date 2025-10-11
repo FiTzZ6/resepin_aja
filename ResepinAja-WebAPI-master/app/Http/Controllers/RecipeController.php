@@ -301,8 +301,50 @@ class RecipeController extends Controller
     {
         return Inertia::render('Search');
     }
+
+
     public function filterProduk(Request $request)
     {
+
+        if ($request->has('ids')) {
+            $ids = explode(',', $request->input('ids'));
+
+            $produk = DB::table('resep')
+                ->leftJoin('rating', 'resep.id_resep', '=', 'rating.id_resep')
+                ->whereIn('resep.id_resep', $ids)
+                ->select(
+                    'resep.id_resep',
+                    'resep.judul',
+                    'resep.gambar',
+                    'resep.wkt_masak',
+                    'resep.prs_masak',
+                    DB::raw('CAST(ROUND(AVG(rating.bintang), 1) AS float) as bintang'),
+                    DB::raw('COUNT(DISTINCT rating.id_user) as jml_bintang')
+                )
+                ->groupBy('resep.id_resep', 'resep.judul', 'resep.gambar', 'resep.wkt_masak', 'resep.prs_masak')
+                ->get();
+
+            return response()->json([
+                'data' => $produk
+            ]);
+        }
+
+        // 🔸 Tambahkan di awal fungsi ini
+        if ($request->has('rekomendasi')) {
+            $waktu = $request->rekomendasi;
+            if ($waktu === 'pagi') {
+                $resep = Resep::where('ktg_masak', 'LIKE', '%sarapan%')->get();
+            } elseif ($waktu === 'siang') {
+                $resep = Resep::where('ktg_masak', 'LIKE', '%makan siang%')->get();
+            } else {
+                $resep = Resep::where('ktg_masak', 'LIKE', '%makan malam%')->get();
+            }
+
+            return response()->json([
+                'data' => $resep
+            ]);
+        }
+
         $query = DB::table('resep')
             ->join('bahan_resep', 'resep.id_resep', '=', 'bahan_resep.id_resep')
             ->leftJoin('rating', 'resep.id_resep', '=', 'rating.id_resep');
@@ -324,28 +366,61 @@ class RecipeController extends Controller
             $query->whereIn('resep.ktg_masak', (array) $request->input('ktg_masak'));
         }
 
-        // 🧄 Filter berdasarkan bahan (misal: /resepcari?bahan=telur,cabai)
-        if ($request->filled('bahan')) {
-            $bahanList = array_map('trim', explode(',', $request->input('bahan')));
-
-            $query->whereIn('resep.id_resep', function ($subquery) use ($bahanList) {
-                $subquery->select('id_resep')
-                    ->from('bahan_resep')
-                    ->where(function ($q) use ($bahanList) {
-                        foreach ($bahanList as $bahan) {
-                            $q->orWhere('nama_bahan', 'like', '%' . $bahan . '%');
-                        }
-                    });
+        // 🧄 Filter berdasarkan bahan atau cari_bahan
+        if ($request->filled('cari_bahan')) {
+            $bahanList = array_map('trim', explode(',', $request->input('cari_bahan')));
+            $query->where(function ($q) use ($bahanList) {
+                foreach ($bahanList as $bahan) {
+                    $q->orWhere('bahan_resep.nama_bahan', 'like', '%' . $bahan . '%');
+                }
             });
         }
 
-
-
-        // 📅 Urutkan berdasarkan tanggal
+        // Waktu Memasak
         if ($request->filled('tgl_masak')) {
-            $query->orderBy('resep.created_at', $request->input('tgl_masak'));
+            $query->where(function ($q) use ($request) {
+                foreach ($request->input('tgl_masak') as $val) {
+                    if ($val === 'cepat') {
+                        $q->orWhere('resep.wkt_masak', '<=', 15);
+                    } elseif ($val === 'lama') {
+                        $q->orWhere('resep.wkt_masak', '>', 15);
+                    }
+                }
+            });
         }
 
+        // ⭐ Filter rating dari checkbox (1-5)
+        if ($request->filled('rating')) {
+            $ratingFilter = (array) $request->input('rating'); // array dari frontend
+            $query->havingRaw('ROUND(AVG(rating.bintang), 0) IN (' . implode(',', $ratingFilter) . ')');
+        }
+
+
+        // 🔹 Sorting
+        $sort = $request->input('sort', null);
+        if ($sort) {
+            switch ($sort) {
+                case 'rating_desc':
+                    $query->orderByRaw('CAST(ROUND(AVG(rating.bintang), 1) AS float) DESC');
+                    break;
+                case 'rating_asc':
+                    $query->orderByRaw('CAST(ROUND(AVG(rating.bintang), 1) AS float) ASC');
+                    break;
+                case 'tgl_desc':
+                    $query->orderBy('resep.created_at', 'desc');
+                    break;
+                case 'tgl_asc':
+                    $query->orderBy('resep.created_at', 'asc');
+                    break;
+                default:
+                    // Default bisa urutkan berdasarkan terbaru
+                    $query->orderBy('resep.created_at', 'desc');
+                    break;
+            }
+        } else {
+            // Jika tidak ada sort, default urut berdasarkan terbaru
+            $query->orderBy('resep.created_at', 'desc');
+        }
 
         $produk = $query->select(
             'resep.id_resep',

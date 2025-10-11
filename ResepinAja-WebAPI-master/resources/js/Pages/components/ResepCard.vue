@@ -19,7 +19,7 @@ const user = usePage().props.auth_user;
             <div class="col-5 pe-0">
                 <div class="position-relative">
                     <div class="ratio ratio-1x1">
-                        <img :src="`http://127.0.0.1:8000/storage/${resepData.gambar}`"
+                        <img :src="`http://localhost:8000/storage/${resepData.gambar}`"
                             class="card-img-top object-fit-cover border rounded-start-2" alt="Recipe image" />
                     </div>
                     <div class="position-absolute top-0 end-0">
