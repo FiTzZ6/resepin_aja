@@ -2,7 +2,13 @@
   "intents": [
     {
       "tag": "salam",
-      "patterns": ["Halo", "Hai", "Selamat pagi", "Selamat siang", "Apa kabar?"],
+      "patterns": [
+        "Halo",
+        "Hai",
+        "Selamat pagi",
+        "Selamat siang",
+        "Apa kabar?"
+      ],
       "responses": [
         "Halo! Lagi pengen masak apa hari ini?",
         "Hai! Mau cari resep apa nih?",
@@ -90,7 +96,11 @@
     },
     {
       "tag": "terimakasih",
-      "patterns": ["Terima kasih", "Makasih ya", "Thanks"],
+      "patterns": [
+        "Terima kasih",
+        "Makasih ya",
+        "Thanks"
+      ],
       "responses": [
         "Sama-sama! Selamat mencoba resepnya! 🍳",
         "Senang bisa bantu kamu! 😊"
@@ -98,17 +108,43 @@
     },
     {
       "tag": "perpisahan",
-      "patterns": ["Dadah", "Sampai jumpa", "Bye"],
+      "patterns": [
+        "Dadah",
+        "Sampai jumpa",
+        "Bye"
+      ],
       "responses": [
         "Sampai jumpa lagi di resep berikutnya!",
         "Dadah! Selamat masak! 👋"
       ]
     },
-        {
+    {
       "tag": "cari_resep",
-      "patterns": ["Cari resep ayam", "Ada resep nasi goreng?", "Resep dengan telur", "Resep pakai cabai"],
-      "responses": ["Baik, saya bantu carikan resepnya ya..."]
-    }
+      "patterns": [
+        "Cari resep ayam",
+        "Ada resep nasi goreng?",
+        "Resep dengan telur",
+        "Resep pakai cabai"
+      ],
+      "responses": [
+        "Baik, saya bantu carikan resepnya ya..."
+      ]
+    },
     
+    {
+      "tag": "cari_bahan",
+      "patterns": [
+        "Aku punya *",
+        "Bahan di kulkasku *",
+        "Aku cuma ada *",
+        "Bisa masak pakai *?",
+        "Ada resep pakai *?",
+        "Pakai * aja"
+      ],
+      "responses": [
+        "Sebentar ya, aku carikan resepnya!",
+        "Oke, aku bantu cari resep yang cocok 😉"
+      ]
+    }
   ]
 }

@@ -354,11 +354,18 @@ class RecipeController extends Controller
             $query->where('resep.judul', 'like', '%' . $request->input('cari_resep') . '%');
         }
 
-        // 👤 Filter berdasarkan username pembuat
         if ($request->filled('user_resep')) {
-            $userIds = User::where('username', 'like', '%' . $request->input('user_resep') . '%')
-                ->pluck('id_user');
-            $query->whereIn('resep.id_user', $userIds);
+            $userInput = $request->input('user_resep');
+
+            $userIds = User::whereRaw('LOWER(username) LIKE ?', ['%' . strtolower($userInput) . '%'])
+                ->pluck('id_user'); // ganti id_user ke id sesuai tabel users
+
+            if ($userIds->isNotEmpty()) {
+                $query->whereIn('resep.id_user', $userIds);
+            } else {
+                // return kosong supaya tidak error
+                return response()->json(['data' => []], 200);
+            }
         }
 
         // 🍲 Filter kategori
@@ -393,6 +400,13 @@ class RecipeController extends Controller
         if ($request->filled('rating')) {
             $ratingFilter = (array) $request->input('rating'); // array dari frontend
             $query->havingRaw('ROUND(AVG(rating.bintang), 0) IN (' . implode(',', $ratingFilter) . ')');
+        }
+
+        // ⭐ Filter rating MIN & MAX khusus request dari chatbot
+        if ($request->filled('min_rating') && $request->filled('max_rating')) {
+            $min = (int) $request->input('min_rating');
+            $max = (int) $request->input('max_rating');
+            $query->havingRaw('ROUND(AVG(rating.bintang), 0) BETWEEN ? AND ?', [$min, $max]);
         }
 
 

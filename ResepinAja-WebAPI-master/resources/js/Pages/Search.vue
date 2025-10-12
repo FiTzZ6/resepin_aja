@@ -1,84 +1,113 @@
 <script setup>
 import App from './App.vue';
-import { onMounted, ref } from 'vue'
-import { router } from '@inertiajs/vue3';
+import { onMounted, ref, watch } from 'vue';
 import ResepCard from './components/ResepCard.vue';
 
 document.title = "Kumpulan Resep";
-const dataResep = ref([])
+
+const dataResep = ref([]);
 
 const form = ref({
-	cari_resep: '',
-	user_resep: '',
-	ktg_masak: [],
-	tgl_masak: [],
-	cari_bahan: '',
-	sort: '',
-	rating: [],
-	ids: null // ✅ Tambahkan untuk menampung ID dari chatbot
+    cari_resep: '',
+    user_resep: '',
+    ktg_masak: [],
+    tgl_masak: [],
+    cari_bahan: '',
+    sort: '',
+    rating: [],
+    ids: null // untuk menampung ID dari chatbot
 });
 
 const kategoriResep = ["Makanan Ringan", "Makanan Berat", "Minuman", "Snack", "Dessert"];
 const ratingOptions = [5, 4, 3, 2, 1, 0];
 
+// Fungsi update form dari URL (dari chatbot)
 const updateFormFromURL = () => {
-	const urlParams = new URLSearchParams(window.location.search);
-	form.value = {
-		cari_resep: urlParams.get('cari_resep') || '',
-		user_resep: urlParams.get('user_resep') || '',
-		ktg_masak: urlParams.getAll('ktg_masak[]') || [],
-		tgl_masak: urlParams.getAll('tgl_masak[]') || [],
-		cari_bahan: urlParams.get('cari_bahan') || '',
-		sort: urlParams.get('sort') || '',
-		rating: urlParams.getAll('rating[]').map(r => parseInt(r)) || [],
-		ids: urlParams.get('ids') || null // ✅ Ambil ?ids= dari URL
-	};
+    const urlParams = new URLSearchParams(window.location.search);
+    form.value = {
+        cari_resep: urlParams.get('cari_resep') || '',
+        user_resep: urlParams.get('user_resep') || '',
+        ktg_masak: urlParams.getAll('ktg_masak[]') || [],
+        tgl_masak: urlParams.getAll('tgl_masak[]') || [],
+        cari_bahan: urlParams.get('cari_bahan') || '',
+        sort: urlParams.get('sort') || '',
+        rating: urlParams.getAll('rating[]').map(r => parseInt(r)) || [],
+        ids: urlParams.get('ids') || null
+    };
+
+    // min & max rating dari chatbot
+    const minRating = urlParams.get('min_rating');
+    const maxRating = urlParams.get('max_rating');
+    if (minRating && maxRating) {
+        form.value.rating = [];
+        for (let r = parseInt(minRating); r <= parseInt(maxRating); r++) {
+            form.value.rating.push(r);
+        }
+    }
+
+    // rating terendah
+    if (urlParams.get('rating_lowest')) {
+        form.value.rating = [0, 1, 2];
+    }
 };
 
-onMounted(() => {
-	updateFormFromURL();
-	const urlParams = new URLSearchParams(window.location.search);
+// Fungsi fetch resep
+const fetchResep = async () => {
+    const params = new URLSearchParams();
 
-	// ✅ Jika chatbot mengirim ?ids=1,2,3 maka langsung fetch
-	if (
-		form.value.ids ||
-		form.value.rating.length ||
-		form.value.cari_resep ||
-		form.value.cari_bahan ||
-		form.value.ktg_masak.length
-	) {
-		fetchResep();
-	}
+    if (form.value.ids) params.append('ids', form.value.ids);
+    if (form.value.cari_resep) params.append('cari_resep', form.value.cari_resep);
+    if (form.value.user_resep) params.append('user_resep', form.value.user_resep);
+
+    form.value.ktg_masak.forEach(item => params.append('ktg_masak[]', item));
+    form.value.tgl_masak.forEach(item => params.append('tgl_masak[]', item));
+    if (form.value.cari_bahan) params.append('cari_bahan', form.value.cari_bahan);
+    if (form.value.sort) params.append('sort', form.value.sort);
+    form.value.rating.forEach(r => params.append('rating[]', r));
+
+    const queryString = params.toString();
+    const newUrl = '/resepcari?' + queryString;
+    window.history.pushState({}, '', newUrl);
+
+    try {
+        const res = await fetch('/api/resepcari?' + queryString);
+        const json = await res.json();
+        dataResep.value = json.data;
+
+        const filterMenu = document.getElementById('filtermenu');
+        if (filterMenu && filterMenu.classList.contains('show')) {
+            filterMenu.classList.remove('show');
+        }
+    } catch (error) {
+        console.error('Error fetching recipes:', error);
+    }
+};
+
+// Jalankan saat mounted
+onMounted(() => {
+    updateFormFromURL();
+
+    // Jika ada filter dari URL (chatbot), otomatis fetch
+    if (
+        form.value.ids ||
+        form.value.user_resep ||
+        form.value.rating.length ||
+        form.value.cari_resep ||
+        form.value.cari_bahan ||
+        form.value.ktg_masak.length ||
+        form.value.tgl_masak.length
+    ) {
+        fetchResep();
+    }
 });
 
-const fetchResep = async () => {
-	const params = new URLSearchParams();
-
-	if (form.value.ids) params.append('ids', form.value.ids); // ✅ Tambah ini
-	if (form.value.cari_resep) params.append('cari_resep', form.value.cari_resep);
-	if (form.value.user_resep) params.append('user_resep', form.value.user_resep);
-
-	form.value.ktg_masak.forEach(item => params.append('ktg_masak[]', item));
-	form.value.tgl_masak.forEach(item => params.append('tgl_masak[]', item));
-
-	if (form.value.cari_bahan) params.append('cari_bahan', form.value.cari_bahan);
-	if (form.value.sort) params.append('sort', form.value.sort);
-	form.value.rating.forEach(r => params.append('rating[]', r));
-
-	const queryString = params.toString();
-	const newUrl = '/resepcari?' + queryString;
-	window.history.pushState({}, '', newUrl);
-
-	try {
-		const res = await fetch('/api/resepcari?' + queryString);
-		const json = await res.json();
-		dataResep.value = json.data;
-		document.getElementById('filtermenu').classList.remove('show');
-	} catch (error) {
-		console.error('Error fetching recipes:', error);
-	}
-};
+// Jika URL berubah (misal chatbot redirect), otomatis update filter & fetch
+window.addEventListener('popstate', () => {
+    updateFormFromURL();
+    fetchResep();
+});
 </script>
+
 <template>
 	<App>
 		<a class="btn btn-dark mt-3" data-bs-toggle="collapse" href="#filtermenu">Filter Spesifik</a>

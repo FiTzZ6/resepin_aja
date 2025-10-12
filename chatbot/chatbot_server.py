@@ -175,7 +175,18 @@ def get_response(ints, intents_json, user_message):
         }
 
     # ✅ Blok rekomendasi aman tanpa error
-    if any(kw in msg_lower for kw in ["rekomendasi", "saran", "makan apa", "dimakan", "siang", "malam", "pagi"]):
+    if any(
+        kw in msg_lower
+        for kw in [
+            "rekomendasi",
+            "saran",
+            "makan apa",
+            "dimakan",
+            "siang",
+            "malam",
+            "pagi",
+        ]
+    ):
         current_hour = datetime.datetime.now().hour
         if "pagi" in msg_lower:
             waktu = "pagi"
@@ -196,7 +207,8 @@ def get_response(ints, intents_json, user_message):
                 waktu = "malam"
 
         if "mudah" in msg_lower or "gampang" in msg_lower:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT r.id_resep, r.judul
                 FROM resep r
                 JOIN bahan_resep br ON r.id_resep = br.id_resep
@@ -206,14 +218,18 @@ def get_response(ints, intents_json, user_message):
                 HAVING COUNT(br.id_bahan) <= 4
                 ORDER BY RAND()
                 LIMIT 3
-            """, (f"%{waktu}%",))
+            """,
+                (f"%{waktu}%",),
+            )
         else:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT id_resep, judul
                 FROM resep
                 ORDER BY RAND()
                 LIMIT 3
-            """)
+            """
+            )
 
         results = cursor.fetchall()  # ✅ DI LUAR IF SUPAYA SELALU ADA
 
@@ -228,10 +244,8 @@ def get_response(ints, intents_json, user_message):
         return {
             "type": "redirect",
             "message": f"Berikut rekomendasi resep {waktu} 🍳",
-            "url": f"http://localhost:8000/resepcari?ids={resep_ids}"
+            "url": f"http://localhost:8000/resepcari?ids={resep_ids}",
         }
-
-
 
     # 🔹 Urutkan by rating tertinggi
     if any(
@@ -261,21 +275,75 @@ def get_response(ints, intents_json, user_message):
             "message": f"Menampilkan resep dengan rating {start}-{end} ⭐",
             "url": f"http://localhost:8000/resepcari?{rating_query}",
         }
+    if "rating terendah" in msg_lower:
+        return {
+        "type": "redirect",
+        "message": "Menampilkan resep dengan rating terendah (0-2) 🌟",
+        "url": "http://localhost:8000/resepcari?rating_lowest=1",
+    }
 
-    # 🔹 Jika sebut "resep ..."
-    if "resep" in msg_lower:
-        match = re.search(r"resep\s+(.*)", msg_lower)
-        keywords = match.group(1).strip() if match else ""
-        if not keywords:
+    # ✅ Kombinasi: "resep dari {username} yang ratingnya {angka}"
+    combo_match = re.search(
+        r"(?:resep(?:nya)?|punya resep|resep buatan|resep dari|cari resep)\s*(?:dari|oleh|milik)?\s*([a-zA-Z0-9_\-\s]+)\s*(?:yang|dengan)?\s*rating(?:nya)?\s*(\d+)",
+        msg_lower,
+    )
+    if combo_match:
+        username = combo_match.group(1).strip()
+        rating = combo_match.group(2).strip()
+
+        cursor.execute(
+            "SELECT id_user FROM users WHERE LOWER(username) = %s", (username.lower(),)
+        )
+        user_data = cursor.fetchone()
+
+        if user_data:
             return {
                 "type": "redirect",
-                "message": "Menampilkan semua resep...",
-                "url": "http://localhost:8000/resepcari",
+                "message": f"Menampilkan resep dari {username} dengan rating {rating} ⭐",
+                "url": f"http://localhost:8000/resepcari?user_resep={username}&rating[]={rating}",
             }
+        else:
+            return {
+                "type": "text",
+                "message": f"Pengguna '{username}' tidak ditemukan.",
+            }
+
+    user_match = re.search(
+        r"(?:resep(?:nya)?|punya resep|resep buatan)\s*(?:dari|oleh|milik)\s*([a-zA-Z0-9_\-\s]+)",
+        msg_lower
+    )
+    if user_match:
+        username = re.sub(r"\s+", " ", user_match.group(1).strip())
+        cursor.execute(
+            "SELECT id_user FROM users WHERE LOWER(username) = %s", (username.lower(),)
+        )
+        user_data = cursor.fetchone()
+
+        if user_data:
+            return {
+                "type": "redirect",
+                "message": f"Menampilkan resep dari {username} 👨‍🍳",
+                "url": f"http://localhost:8000/resepcari?user_resep={username}",
+            }
+        else:
+            return {
+                "type": "text",
+                "message": f"Maaf, tidak ditemukan pengguna dengan nama '{username}'.",
+            }
+
+    # ---------------------
+    # Jika hanya 'resep ...' tanpa 'dari/oleh/milik' → Nama resep
+    # ---------------------
+    resep_match = re.search(
+        r"(?:aku mau resep|resep|punya resep|resep buatan)\s+(.+)",
+        msg_lower
+    )
+    if resep_match:
+        nama_resep = resep_match.group(1).strip()
         return {
             "type": "redirect",
-            "message": f"Menampilkan resep '{keywords}'...",
-            "url": f"http://localhost:8000/resepcari?cari_resep={keywords}",
+            "message": f"Menampilkan resep '{nama_resep}'...",
+            "url": f"http://localhost:8000/resepcari?cari_resep={nama_resep}",
         }
 
     # 🔹 Jika menyebut bahan (pakai, punya, menggunakan)
