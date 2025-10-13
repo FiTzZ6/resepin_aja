@@ -307,6 +307,43 @@ def get_response(ints, intents_json, user_message):
                 "type": "text",
                 "message": f"Pengguna '{username}' tidak ditemukan.",
             }
+            
+    
+    # 🔹 Tangani banyak user sekaligus: "resep dari user1 dan user2"
+    multi_user_match = re.search(
+        r"(?:resep(?:nya)?|punya resep|resep buatan|tampilkan resep)\s*(?:dari|oleh|milik)?\s*([a-zA-Z0-9_\-\s,dan]+)",
+        msg_lower
+    )
+
+    if multi_user_match:
+        raw_users = multi_user_match.group(1)
+
+        # Pisahkan berdasarkan "dan" atau koma
+        usernames = re.split(r"\s*(?:dan|,|&)\s*", raw_users)
+        usernames = [u.strip() for u in usernames if u.strip()]
+
+        valid_users = []
+        for username in usernames:
+            cursor.execute(
+                "SELECT id_user FROM users WHERE LOWER(username) = %s", (username.lower(),)
+            )
+            user_data = cursor.fetchone()
+            if user_data:
+                valid_users.append(username)
+        
+        if valid_users:
+            url_query = "&".join([f"user_resep[]={u}" for u in valid_users])
+            return {
+                "type": "redirect",
+                "message": f"Menampilkan resep dari {', '.join(valid_users)} 👨‍🍳",
+                "url": f"http://localhost:8000/resepcari?{url_query}",
+            }
+        else:
+            return {
+                "type": "text",
+                "message": f"Maaf, tidak ditemukan pengguna yang disebutkan."
+            }
+
 
     user_match = re.search(
         r"(?:resep(?:nya)?|punya resep|resep buatan)\s*(?:dari|oleh|milik)\s*([a-zA-Z0-9_\-\s]+)",

@@ -349,25 +349,34 @@ class RecipeController extends Controller
             ->join('bahan_resep', 'resep.id_resep', '=', 'bahan_resep.id_resep')
             ->leftJoin('rating', 'resep.id_resep', '=', 'rating.id_resep');
 
-        // 🔍 Filter judul resep
+        // 🔍 Filter judul resep dengan multiple keyword (mode OR)
         if ($request->filled('cari_resep')) {
-            $query->where('resep.judul', 'like', '%' . $request->input('cari_resep') . '%');
+            $keywords = array_map('trim', explode(',', $request->input('cari_resep')));
+
+            $query->where(function ($q) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $q->orWhere('resep.judul', 'like', '%' . $word . '%');
+                }
+            });
         }
 
-        if ($request->filled('user_resep')) {
-            $userInput = $request->input('user_resep');
+        if ($request->has('user_resep')) {
 
-            $userIds = User::whereRaw('LOWER(username) LIKE ?', ['%' . strtolower($userInput) . '%'])
-                ->pluck('id_user'); // ganti id_user ke id sesuai tabel users
+            // Bisa string (satu input) atau array (user_resep[])
+            $userInputs = (array) $request->input('user_resep');
+
+            $userIds = User::where(function ($q) use ($userInputs) {
+                foreach ($userInputs as $name) {
+                    $q->orWhereRaw('LOWER(username) LIKE ?', ['%' . strtolower($name) . '%']);
+                }
+            })->pluck('id_user');
 
             if ($userIds->isNotEmpty()) {
                 $query->whereIn('resep.id_user', $userIds);
             } else {
-                // return kosong supaya tidak error
                 return response()->json(['data' => []], 200);
             }
         }
-
         // 🍲 Filter kategori
         if ($request->filled('ktg_masak')) {
             $query->whereIn('resep.ktg_masak', (array) $request->input('ktg_masak'));
