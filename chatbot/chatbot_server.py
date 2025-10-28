@@ -135,11 +135,145 @@ def cari_resep_dari_bahan(bahan_list):
 
 
 # ---------------------
+# Parser kombinasi kompleks: users, bahan, rating, kata khusus (terenak)
+# ---------------------
+def parse_combination_filters(msg):
+    """
+    Mengembalikan dict dengan kunci opsional:
+      - users: list of usernames (strings)
+      - bahan: list of bahan (strings)
+      - min_rating: int
+      - max_rating: int
+      - sort: 'rating_desc' atau lainnya
+    """
+    out = {
+        "users": [],
+        "bahan": [],
+        "min_rating": None,
+        "max_rating": None,
+        "sort": None,
+    }
+
+    text = msg.lower()
+
+    # 1) Cari frasa user: "dari fikri dan athar", "dari fikri, athar"
+    user_match = re.search(r"(?:dari|oleh|milik)\s+([a-z0-9_\-\s, dan&]+)", text)
+    if user_match:
+        raw = user_match.group(1)
+        # split by 'dan', ',', '&'
+        users = re.split(r"\s*(?:dan|,|&)\s*", raw)
+        users = [u.strip() for u in users if u.strip()]
+        out["users"] = users
+
+    # 2) Cari bahan: patterns after 'yang bahannya', 'yang bahannya ayam', 'pakai', 'punya'
+    bahan_match = re.search(
+        r"(?:yang\s+bahannya|yang\s+pakai|yang\s+menggunakan|pakai|punya|dengan)\s+([a-z0-9_\-\s, dan&]+)",
+        text,
+    )
+    if bahan_match:
+        raw_bahan = bahan_match.group(1)
+        bahan_list = re.split(r"\s*(?:dan|,|&)\s*", raw_bahan)
+        bahan_list = [b.strip() for b in bahan_list if b.strip()]
+        out["bahan"] = bahan_list
+    else:
+        # fallback: cek ada kata 'ayam', 'telur' langsung disebutkan tanpa kata kunci
+        # gunakan extract_ingredients_from_message sebagai fallback
+        if any(
+            k in text
+            for k in ["ayam", "telur", "bawang", "tahu", "tempe", "daging", "ikan"]
+        ):
+            ext = extract_ingredients_from_message(text)
+            if ext:
+                out["bahan"] = ext
+
+    # 3) Rating: "rating 4 ke atas", "rating minimal 3", "rating 3-5", "rating 4+"
+    # pola range
+    range_match = re.search(r"rating\s*(\d+)\s*[-–]\s*(\d+)", text)
+    if range_match:
+        out["min_rating"] = int(range_match.group(1))
+        out["max_rating"] = int(range_match.group(2))
+    else:
+        # pola 'rating X ke atas' / 'rating minimal X' / 'rating X+'
+        up_match = re.search(
+            r"rating\s*(\d+)\s*(?:ke\s*atas|keatas|minimal|minimalnya|lebih\s*dari|>)|\brating\s*(\d+)\s*\+",
+            text,
+        )
+        if up_match:
+            # group may have None
+            val = up_match.group(1) or up_match.group(2)
+            if val:
+                out["min_rating"] = int(val)
+                out["max_rating"] = 5
+
+        # pola 'rating di atas X' (strict greater than)
+        above_match = re.search(r"rating\s*di\s*atas\s*(\d+)", text)
+        if above_match:
+            out["min_rating"] = int(above_match.group(1)) + 1
+            out["max_rating"] = 5
+
+    # 4) Kata kunci 'terenak' atau 'terbaik' -> prioritaskan rating tinggi
+    if "terenak" in text or "terbaik" in text or "paling enak" in text:
+        # set minimal rating 4 sebagai default jika belum ada rating
+        if not out["min_rating"]:
+            out["min_rating"] = 4
+        out["sort"] = "rating_desc"
+
+    return out
+
+
+# ---------------------
 # Respon utama chatbot
 # ---------------------
 def get_response(ints, intents_json, user_message):
     msg_lower = user_message.lower()
 
+    # 1) Cek kombinasi kompleks lebih dulu
+    combo = parse_combination_filters(msg_lower)
+    if combo["users"] or combo["bahan"] or combo["min_rating"] or combo["max_rating"]:
+        # bangun query params
+        params = []
+        # users
+        if combo["users"]:
+            # kirim sebagai user_resep[] untuk mendukung multi-user
+            for u in combo["users"]:
+                params.append(("user_resep[]", u))
+        # bahan
+        if combo["bahan"]:
+            # gabungkan menjadi satu param cari_bahan (backend menerima comma-separated)
+            params.append(("cari_bahan", ",".join(combo["bahan"])))
+        # rating min/max
+        if combo["min_rating"] is not None and combo["max_rating"] is not None:
+            params.append(("min_rating", str(combo["min_rating"])))
+            params.append(("max_rating", str(combo["max_rating"])))
+        elif combo["min_rating"] is not None:
+            params.append(("min_rating", str(combo["min_rating"])))
+        elif combo["max_rating"] is not None:
+            params.append(("max_rating", str(combo["max_rating"])))
+
+        # sort
+        if combo["sort"]:
+            params.append(("sort", combo["sort"]))
+
+        # buat query string manual
+        query_parts = []
+        for k, v in params:
+            encoded_value = re.sub(r'\s+', '%20', v)
+            query_parts.append(f"{k}={encoded_value}")
+        query = "&".join(query_parts)
+        # jika tidak ada params (edge-case), fallback
+        if not query:
+            return {
+                "type": "text",
+                "message": "Maaf, saya tidak menemukan filter yang valid.",
+            }
+
+        return {
+            "type": "redirect",
+            "message": "Menampilkan resep sesuai kombinasi filter kamu... 🍽️",
+            "url": f"http://localhost:8000/resepcari?{query}",
+        }
+        
+        
     # Daftar kategori yang ada
     kategori_keywords = {
         "makanan ringan": "Makanan Ringan",
@@ -277,10 +411,10 @@ def get_response(ints, intents_json, user_message):
         }
     if "rating terendah" in msg_lower:
         return {
-        "type": "redirect",
-        "message": "Menampilkan resep dengan rating terendah (0-2) 🌟",
-        "url": "http://localhost:8000/resepcari?rating_lowest=1",
-    }
+            "type": "redirect",
+            "message": "Menampilkan resep dengan rating terendah (0-2) 🌟",
+            "url": "http://localhost:8000/resepcari?rating_lowest=1",
+        }
 
     # ✅ Kombinasi: "resep dari {username} yang ratingnya {angka}"
     combo_match = re.search(
@@ -307,12 +441,11 @@ def get_response(ints, intents_json, user_message):
                 "type": "text",
                 "message": f"Pengguna '{username}' tidak ditemukan.",
             }
-            
-    
+
     # 🔹 Tangani banyak user sekaligus: "resep dari user1 dan user2"
     multi_user_match = re.search(
         r"(?:resep(?:nya)?|punya resep|resep buatan|tampilkan resep)\s*(?:dari|oleh|milik)?\s*([a-zA-Z0-9_\-\s,dan]+)",
-        msg_lower
+        msg_lower,
     )
 
     if multi_user_match:
@@ -325,12 +458,13 @@ def get_response(ints, intents_json, user_message):
         valid_users = []
         for username in usernames:
             cursor.execute(
-                "SELECT id_user FROM users WHERE LOWER(username) = %s", (username.lower(),)
+                "SELECT id_user FROM users WHERE LOWER(username) = %s",
+                (username.lower(),),
             )
             user_data = cursor.fetchone()
             if user_data:
                 valid_users.append(username)
-        
+
         if valid_users:
             url_query = "&".join([f"user_resep[]={u}" for u in valid_users])
             return {
@@ -341,13 +475,12 @@ def get_response(ints, intents_json, user_message):
         else:
             return {
                 "type": "text",
-                "message": f"Maaf, tidak ditemukan pengguna yang disebutkan."
+                "message": f"Maaf, tidak ditemukan pengguna yang disebutkan.",
             }
-
 
     user_match = re.search(
         r"(?:resep(?:nya)?|punya resep|resep buatan)\s*(?:dari|oleh|milik)\s*([a-zA-Z0-9_\-\s]+)",
-        msg_lower
+        msg_lower,
     )
     if user_match:
         username = re.sub(r"\s+", " ", user_match.group(1).strip())
@@ -372,8 +505,7 @@ def get_response(ints, intents_json, user_message):
     # Jika hanya 'resep ...' tanpa 'dari/oleh/milik' → Nama resep
     # ---------------------
     resep_match = re.search(
-        r"(?:aku mau resep|resep|punya resep|resep buatan)\s+(.+)",
-        msg_lower
+        r"(?:aku mau resep|resep|punya resep|resep buatan)\s+(.+)", msg_lower
     )
     if resep_match:
         nama_resep = resep_match.group(1).strip()

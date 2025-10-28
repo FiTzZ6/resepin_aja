@@ -1,0 +1,62 @@
+# ========================
+# === PYTHON PROJECTS ===
+# ========================
+venv/
+*/venv311/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.h5
+*.ckpt
+*.tflite
+*.onnx
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# TensorFlow & cache files
+/.keras/
+logs/
+events.out.tfevents.*
+
+# Model datasets
+dataset/
+*.csv
+*.npz
+*.npy
+
+# ========================
+# === LARAVEL PROJECTS ===
+# ========================
+/vendor/
+/node_modules/
+/.env
+.env.*
+/public/storage
+/storage/*.key
+/storage/logs
+/bootstrap/cache
+
+# Laravel build artifacts
+npm-debug.log
+yarn-error.log
+composer.lock
+package-lock.json
+
+# ========================
+# === OS & EDITOR FILES ===
+# ========================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ========================
+# === OTHERS ===
+# ========================
+/uploads/
+*.log
