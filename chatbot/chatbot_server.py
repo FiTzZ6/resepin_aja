@@ -1,16 +1,30 @@
 from flask import Flask, request, jsonify
 from tensorflow.keras.models import load_model
 import nltk, numpy as np, json, pickle, random
+import sys,os
+
+
+# Tambahkan path vision_model supaya bisa diimport
+sys.path.append(os.path.join(os.path.dirname(__file__), "../vision_model"))
+
+from predict_image import predict_food_image
 from nltk.stem import WordNetLemmatizer
 import mysql.connector
 import re
 import datetime
 
+
 app = Flask(__name__)
 lemmatizer = WordNetLemmatizer()
 
 # --- Load model dan data NLP ---
-model = load_model("model/model.h5")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "model.h5")
+try:
+    model = load_model(MODEL_PATH)
+    print("Model berhasil dimuat!")
+except Exception as e:
+    model = None
+    print(f"Error saat load model: {e}")
 intents = json.loads(open("dataset/intents.json", encoding="utf-8").read())
 words = pickle.load(open("model/words.pkl", "rb"))
 classes = pickle.load(open("model/classes.pkl", "rb"))
@@ -227,54 +241,101 @@ def parse_combination_filters(msg):
 def get_response(ints, intents_json, user_message):
     msg_lower = user_message.lower()
 
-    # 1) Cek kombinasi kompleks lebih dulu
+    # -----------------------------
+    # 1) Cek kombinasi kompleks dulu (users, bahan, rating, sort)
+    # -----------------------------
     combo = parse_combination_filters(msg_lower)
     if combo["users"] or combo["bahan"] or combo["min_rating"] or combo["max_rating"]:
-        # bangun query params
         params = []
-        # users
+
+        # Users
         if combo["users"]:
-            # kirim sebagai user_resep[] untuk mendukung multi-user
             for u in combo["users"]:
                 params.append(("user_resep[]", u))
-        # bahan
+
+        # Bahan (bersihkan kata 'rating' & angka)
         if combo["bahan"]:
-            # gabungkan menjadi satu param cari_bahan (backend menerima comma-separated)
-            params.append(("cari_bahan", ",".join(combo["bahan"])))
-        # rating min/max
-        if combo["min_rating"] is not None and combo["max_rating"] is not None:
+    # Bersihkan kata-kata umum & ekstrak bahan utama
+            cleaned_bahan = []
+            for b in combo["bahan"]:
+                extracted = extract_ingredients_from_message(b)
+                if extracted:
+                    cleaned_bahan.extend(extracted)
+            if cleaned_bahan:
+                params.append(("cari_bahan", ",".join(cleaned_bahan)))
+
+        # Rating
+        if combo["min_rating"] is not None:
             params.append(("min_rating", str(combo["min_rating"])))
-            params.append(("max_rating", str(combo["max_rating"])))
-        elif combo["min_rating"] is not None:
-            params.append(("min_rating", str(combo["min_rating"])))
-        elif combo["max_rating"] is not None:
+        if combo["max_rating"] is not None:
             params.append(("max_rating", str(combo["max_rating"])))
 
-        # sort
+        # Sort
         if combo["sort"]:
             params.append(("sort", combo["sort"]))
 
-        # buat query string manual
+        # Build query
         query_parts = []
         for k, v in params:
-            encoded_value = re.sub(r'\s+', '%20', v)
+            encoded_value = v.replace(" ", "%20")
             query_parts.append(f"{k}={encoded_value}")
         query = "&".join(query_parts)
-        # jika tidak ada params (edge-case), fallback
+
         if not query:
-            return {
-                "type": "text",
-                "message": "Maaf, saya tidak menemukan filter yang valid.",
-            }
+            return {"type": "text", "message": "Maaf, saya tidak menemukan filter yang valid."}
 
         return {
             "type": "redirect",
             "message": "Menampilkan resep sesuai kombinasi filter kamu... 🍽️",
             "url": f"http://localhost:8000/resepcari?{query}",
         }
-        
-        
-    # Daftar kategori yang ada
+
+    # -----------------------------
+    # 2) Cek rating range spesifik: "rating 2-4"
+    # -----------------------------
+    rating_range_match = re.search(r"rating\s*(\d+)\s*-\s*(\d+)", msg_lower)
+    if rating_range_match:
+        start, end = int(rating_range_match.group(1)), int(rating_range_match.group(2))
+        rating_query = "&".join([f"rating[]={r}" for r in range(start, end + 1)])
+        return {
+            "type": "redirect",
+            "message": f"Menampilkan resep dengan rating {start}-{end} ⭐",
+            "url": f"http://localhost:8000/resepcari?{rating_query}",
+        }
+
+    # -----------------------------
+    # 3) Cek rating tinggi / terendah
+    # -----------------------------
+    if any(kw in msg_lower for kw in ["rating tinggi", "terbaik", "bintang tinggi", "terfavorit"]):
+        return {
+            "type": "redirect",
+            "message": "Menampilkan resep dengan rating tinggi (3-5) 🌟",
+            "url": "http://localhost:8000/resepcari?sort=rating_desc&min_rating=3&max_rating=5",
+        }
+
+    if "rating terendah" in msg_lower:
+        return {
+            "type": "redirect",
+            "message": "Menampilkan resep dengan rating terendah (0-2) 🌟",
+            "url": "http://localhost:8000/resepcari?rating_lowest=1",
+        }
+
+    # -----------------------------
+    # 4) Cek bahan yang disebut (pastikan bukan rating)
+    # -----------------------------
+    if any(kw in msg_lower for kw in ["punya", "bahan", "ada", "pakai", "menggunakan"]) and "rating" not in msg_lower:
+        bahan = extract_ingredients_from_message(msg_lower)
+        if bahan:
+            query_bahan = ",".join(bahan)
+            return {
+                "type": "redirect",
+                "message": f"Mencarikan resep dengan bahan: {', '.join(bahan)}...",
+                "url": f"http://localhost:8000/resepcari?cari_bahan={query_bahan}",
+            }
+
+    # -----------------------------
+    # 5) Cek kategori (minuman, snack, dessert, dll)
+    # -----------------------------
     kategori_keywords = {
         "makanan ringan": "Makanan Ringan",
         "makanan berat": "Makanan Berat",
@@ -282,8 +343,6 @@ def get_response(ints, intents_json, user_message):
         "snack": "Snack",
         "dessert": "Dessert",
     }
-
-    # 🔹 Cek kategori di pesan user
     for kw, ktg in kategori_keywords.items():
         if kw in msg_lower:
             return {
@@ -291,10 +350,11 @@ def get_response(ints, intents_json, user_message):
                 "message": f"Menampilkan resep kategori {ktg} 🍽️",
                 "url": f"http://localhost:8000/resepcari?ktg_masak[]={ktg}",
             }
-            # 🔹 Filter berdasarkan waktu memasak
-    if any(
-        kw in msg_lower for kw in ["tercepat", "waktu cepat", "masak cepat", "cepat"]
-    ):
+
+    # -----------------------------
+    # 6) Cek waktu memasak tercepat / terlama
+    # -----------------------------
+    if any(kw in msg_lower for kw in ["tercepat", "waktu cepat", "masak cepat", "cepat"]):
         return {
             "type": "redirect",
             "message": "Menampilkan resep dengan waktu memasak tercepat (0-15 menit) ⏱️",
@@ -308,19 +368,10 @@ def get_response(ints, intents_json, user_message):
             "url": "http://localhost:8000/resepcari?tgl_masak[]=lama",
         }
 
-    # ✅ Blok rekomendasi aman tanpa error
-    if any(
-        kw in msg_lower
-        for kw in [
-            "rekomendasi",
-            "saran",
-            "makan apa",
-            "dimakan",
-            "siang",
-            "malam",
-            "pagi",
-        ]
-    ):
+    # -----------------------------
+    # 7) Cek rekomendasi (pagi, malam, mudah, random)
+    # -----------------------------
+    if any(kw in msg_lower for kw in ["rekomendasi", "saran", "makan apa", "dimakan", "siang", "malam", "pagi"]):
         current_hour = datetime.datetime.now().hour
         if "pagi" in msg_lower:
             waktu = "pagi"
@@ -352,25 +403,16 @@ def get_response(ints, intents_json, user_message):
                 HAVING COUNT(br.id_bahan) <= 4
                 ORDER BY RAND()
                 LIMIT 3
-            """,
+                """,
                 (f"%{waktu}%",),
             )
         else:
-            cursor.execute(
-                """
-                SELECT id_resep, judul
-                FROM resep
-                ORDER BY RAND()
-                LIMIT 3
-            """
-            )
+            cursor.execute("SELECT id_resep, judul FROM resep ORDER BY RAND() LIMIT 3")
 
-        results = cursor.fetchall()  # ✅ DI LUAR IF SUPAYA SELALU ADA
-
+        results = cursor.fetchall()
         if results:
             resep_ids = ",".join([str(r["id_resep"]) for r in results])
         else:
-            # fallback ke random supaya tidak kosong
             cursor.execute("SELECT id_resep FROM resep ORDER BY RAND() LIMIT 3")
             fallback = cursor.fetchall()
             resep_ids = ",".join([str(r["id_resep"]) for r in fallback])
@@ -381,132 +423,10 @@ def get_response(ints, intents_json, user_message):
             "url": f"http://localhost:8000/resepcari?ids={resep_ids}",
         }
 
-    # 🔹 Urutkan by rating tertinggi
-    if any(
-        kw in msg_lower
-        for kw in [
-            "rating tinggi",
-            "terbaik",
-            "bintang tinggi",
-            "paling bagus",
-            "terfavorit",
-        ]
-    ):
-        return {
-            "type": "redirect",
-            "message": "Menampilkan resep dengan rating tinggi (3-5) 🌟",
-            "url": "http://localhost:8000/resepcari?sort=rating_desc&min_rating=3&max_rating=5",
-        }
-
-    # 🔹 Urutkan by rating terendah (0-5)
-    rating_range_match = re.search(r"rating\s*(\d+)\s*-\s*(\d+)", msg_lower)
-    if rating_range_match:
-        start, end = int(rating_range_match.group(1)), int(rating_range_match.group(2))
-        rating_list = list(range(start, end + 1))
-        rating_query = "&".join([f"rating[]={r}" for r in rating_list])
-        return {
-            "type": "redirect",
-            "message": f"Menampilkan resep dengan rating {start}-{end} ⭐",
-            "url": f"http://localhost:8000/resepcari?{rating_query}",
-        }
-    if "rating terendah" in msg_lower:
-        return {
-            "type": "redirect",
-            "message": "Menampilkan resep dengan rating terendah (0-2) 🌟",
-            "url": "http://localhost:8000/resepcari?rating_lowest=1",
-        }
-
-    # ✅ Kombinasi: "resep dari {username} yang ratingnya {angka}"
-    combo_match = re.search(
-        r"(?:resep(?:nya)?|punya resep|resep buatan|resep dari|cari resep)\s*(?:dari|oleh|milik)?\s*([a-zA-Z0-9_\-\s]+)\s*(?:yang|dengan)?\s*rating(?:nya)?\s*(\d+)",
-        msg_lower,
-    )
-    if combo_match:
-        username = combo_match.group(1).strip()
-        rating = combo_match.group(2).strip()
-
-        cursor.execute(
-            "SELECT id_user FROM users WHERE LOWER(username) = %s", (username.lower(),)
-        )
-        user_data = cursor.fetchone()
-
-        if user_data:
-            return {
-                "type": "redirect",
-                "message": f"Menampilkan resep dari {username} dengan rating {rating} ⭐",
-                "url": f"http://localhost:8000/resepcari?user_resep={username}&rating[]={rating}",
-            }
-        else:
-            return {
-                "type": "text",
-                "message": f"Pengguna '{username}' tidak ditemukan.",
-            }
-
-    # 🔹 Tangani banyak user sekaligus: "resep dari user1 dan user2"
-    multi_user_match = re.search(
-        r"(?:resep(?:nya)?|punya resep|resep buatan|tampilkan resep)\s*(?:dari|oleh|milik)?\s*([a-zA-Z0-9_\-\s,dan]+)",
-        msg_lower,
-    )
-
-    if multi_user_match:
-        raw_users = multi_user_match.group(1)
-
-        # Pisahkan berdasarkan "dan" atau koma
-        usernames = re.split(r"\s*(?:dan|,|&)\s*", raw_users)
-        usernames = [u.strip() for u in usernames if u.strip()]
-
-        valid_users = []
-        for username in usernames:
-            cursor.execute(
-                "SELECT id_user FROM users WHERE LOWER(username) = %s",
-                (username.lower(),),
-            )
-            user_data = cursor.fetchone()
-            if user_data:
-                valid_users.append(username)
-
-        if valid_users:
-            url_query = "&".join([f"user_resep[]={u}" for u in valid_users])
-            return {
-                "type": "redirect",
-                "message": f"Menampilkan resep dari {', '.join(valid_users)} 👨‍🍳",
-                "url": f"http://localhost:8000/resepcari?{url_query}",
-            }
-        else:
-            return {
-                "type": "text",
-                "message": f"Maaf, tidak ditemukan pengguna yang disebutkan.",
-            }
-
-    user_match = re.search(
-        r"(?:resep(?:nya)?|punya resep|resep buatan)\s*(?:dari|oleh|milik)\s*([a-zA-Z0-9_\-\s]+)",
-        msg_lower,
-    )
-    if user_match:
-        username = re.sub(r"\s+", " ", user_match.group(1).strip())
-        cursor.execute(
-            "SELECT id_user FROM users WHERE LOWER(username) = %s", (username.lower(),)
-        )
-        user_data = cursor.fetchone()
-
-        if user_data:
-            return {
-                "type": "redirect",
-                "message": f"Menampilkan resep dari {username} 👨‍🍳",
-                "url": f"http://localhost:8000/resepcari?user_resep={username}",
-            }
-        else:
-            return {
-                "type": "text",
-                "message": f"Maaf, tidak ditemukan pengguna dengan nama '{username}'.",
-            }
-
-    # ---------------------
-    # Jika hanya 'resep ...' tanpa 'dari/oleh/milik' → Nama resep
-    # ---------------------
-    resep_match = re.search(
-        r"(?:aku mau resep|resep|punya resep|resep buatan)\s+(.+)", msg_lower
-    )
+    # -----------------------------
+    # 8) Nama resep spesifik
+    # -----------------------------
+    resep_match = re.search(r"(?:aku mau resep|resep|punya resep|resep buatan)\s+(.+)", msg_lower)
     if resep_match:
         nama_resep = resep_match.group(1).strip()
         return {
@@ -515,40 +435,18 @@ def get_response(ints, intents_json, user_message):
             "url": f"http://localhost:8000/resepcari?cari_resep={nama_resep}",
         }
 
-    # 🔹 Jika menyebut bahan (pakai, punya, menggunakan)
-    if any(kw in msg_lower for kw in ["punya", "bahan", "ada", "pakai", "menggunakan"]):
-        bahan = extract_ingredients_from_message(msg_lower)
-        if bahan:
-            # Buat URL yang memuat query cari_bahan
-            query_bahan = ",".join(bahan)
-            return {
-                "type": "redirect",
-                "message": f"Mencarikan resep dengan bahan: {', '.join(bahan)}...",
-                "url": f"http://localhost:8000/resepcari?cari_bahan={query_bahan}",
-            }
-
-    # 🔹 Tambahkan ini sebelum cek intents.json
-    rating_range_match = re.search(r"rating\s*(\d+)\s*-\s*(\d+)", msg_lower)
-    if rating_range_match:
-        start = int(rating_range_match.group(1))
-        end = int(rating_range_match.group(2))
-        # Buat list rating dari start ke end
-        rating_list = list(range(start, end + 1))
-        rating_query = "&".join([f"rating[]={r}" for r in rating_list])
-        return {
-            "type": "redirect",
-            "message": f"Menampilkan resep dengan rating {start}-{end} ⭐",
-            "url": f"http://localhost:8000/resepcari?{rating_query}",  # <-- ganti ke /resepcari
-        }
-
-    # 🔹 Jika cocok ke NLP intents.json
+    # -----------------------------
+    # 9) NLP fallback
+    # -----------------------------
     if ints:
         tag = ints[0]["intent"]
         for i in intents_json["intents"]:
             if i["tag"] == tag:
                 return {"type": "text", "message": random.choice(i["responses"])}
 
+    # Default
     return {"type": "text", "message": "Maaf, saya tidak mengerti maksud Anda."}
+
 
 
 # ---------------------
@@ -561,6 +459,34 @@ def chat():
     response_data = get_response(intents_pred, intents, user_message)
     return jsonify(response_data)
 
+# -------------------
+# Endpoint prediksi gambar
+# -------------------
+@app.route("/predict_image", methods=["POST"])
+def predict_image_endpoint():
+    if 'file' not in request.files:
+        return jsonify({"status": "error", "message": "Tidak ada file yang dikirim"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"status": "error", "message": "Nama file kosong"}), 400
+
+    # Simpan sementara
+    os.makedirs("temp", exist_ok=True)
+    temp_path = os.path.join("temp", file.filename)
+    file.save(temp_path)
+
+    # Prediksi
+    result = predict_food_image(temp_path)
+    os.remove(temp_path)
+
+    if "error" in result:
+        return jsonify({"status": "error", "message": result["error"]}), 500
+
+    return jsonify({"status": "success", "data": result})
+
+
+
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    print("🚀 Chatbot server running on port 5001...")
+    app.run(port=5000, debug=False)

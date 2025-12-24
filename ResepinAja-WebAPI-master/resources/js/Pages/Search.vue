@@ -37,20 +37,25 @@ const updateFormFromURL = () => {
 		user_resep: getParamArray(urlParams, 'user_resep[]').join(',') || urlParams.get('user_resep') || '',
 		ktg_masak: getParamArray(urlParams, 'ktg_masak[]'),
 		tgl_masak: getParamArray(urlParams, 'tgl_masak[]'),
-		cari_bahan: urlParams.get('cari_bahan') || '',
+		cari_bahan: urlParams.get('cari_bahan') || '', // <- jika tidak ada, akan jadi ''
 		sort: urlParams.get('sort') || '',
 		rating: getParamArray(urlParams, 'rating[]').map(Number),
 		ids: urlParams.get('ids') || null
 	};
 
-	// ✅ Rating Range (ex: ?min_rating=2&max_rating=4)
+	// Reset bahan kalau URL tidak punya query
+	if (!urlParams.has('cari_bahan')) {
+		form.value.cari_bahan = '';
+	}
+
+	// Rating Range (ex: ?min_rating=2&max_rating=4)
 	const minRating = urlParams.get('min_rating');
 	const maxRating = urlParams.get('max_rating');
 	if (minRating && maxRating) {
 		form.value.rating = Array.from({ length: maxRating - minRating + 1 }, (_, i) => Number(minRating) + i);
 	}
 
-	// ✅ Quick filter (ex: ?rating_lowest)
+	// Quick filter (ex: ?rating_lowest)
 	if (urlParams.get('rating_lowest')) {
 		form.value.rating = [0, 1, 2];
 	}

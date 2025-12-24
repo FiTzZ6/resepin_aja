@@ -6,11 +6,14 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.layers import Input
+from tensorflow.keras.optimizers import SGD  # gunakan legacy SGD
+
+nltk.download('punkt')  # pastikan tokenizer NLTK tersedia
 
 lemmatizer = WordNetLemmatizer()
 
-# Baca dataset
+# --- Baca dataset intents ---
 with open('dataset/intents.json', 'r', encoding='utf-8') as f:
     intents = json.load(f)
 
@@ -19,6 +22,7 @@ classes = []
 documents = []
 ignore_letters = ['?', '!', '.', ',']
 
+# --- Tokenisasi dan lemmatize ---
 for intent in intents['intents']:
     for pattern in intent['patterns']:
         word_list = nltk.word_tokenize(pattern)
@@ -31,6 +35,7 @@ words = [lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_lette
 words = sorted(list(set(words)))
 classes = sorted(list(set(classes)))
 
+# --- Siapkan data training ---
 training = []
 output_empty = [0] * len(classes)
 
@@ -50,23 +55,24 @@ training = np.array(training, dtype=object)
 train_x = np.array(list(training[:, 0]))
 train_y = np.array(list(training[:, 1]))
 
-# Buat model
+# --- Bangun model ---
 model = Sequential()
-model.add(Dense(128, input_shape=(len(train_x[0]),), activation='relu'))
+model.add(Input(shape=(len(train_x[0]),)))
+model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(len(train_y[0]), activation='softmax'))
 
-# Compile model
-sgd = SGD(learning_rate=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+# --- Compile model ---
+sgd = SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-# Latih model
+# --- Latih model ---
 hist = model.fit(train_x, train_y, epochs=200, batch_size=5, verbose=1)
 
-# Simpan model
-model.save('model/model.h5', hist)
+# --- Simpan model dan data ---
+model.save('model/model.h5')
 
 with open('model/words.pkl', 'wb') as f:
     pickle.dump(words, f)

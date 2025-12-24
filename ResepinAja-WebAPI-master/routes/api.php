@@ -39,3 +39,4 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/chatbot', [ChatbotController::class, 'sendMessage']);
+Route::post('/chatbot/image', [ChatbotController::class, 'handleImage']);
