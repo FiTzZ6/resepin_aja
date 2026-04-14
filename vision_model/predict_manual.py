@@ -6,8 +6,8 @@ import os
 
 # === KONFIGURASI ===
 MODEL_PATH = "model/efficientnetb0_final.keras"   # ubah sesuai model kamu
-CLASS_DIR = "dataset/train_augmented"               # digunakan untuk ambil label kelas
-IMG_PATH = r"C:\Users\fikri\Downloads\telur.jpg"    # ubah ke path gambar yang mau diuji
+CLASS_DIR = "dataset/dataset_jadi/train_augmented"               # digunakan untuk ambil label kelas
+IMG_PATH = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\dataset_jadi\aug_0_38.jpg"    # ubah ke path gambar yang mau diuji
 
 # === LOAD MODEL ===
 print(f"📦 Memuat model dari: {MODEL_PATH}")

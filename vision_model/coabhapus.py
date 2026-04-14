@@ -7,7 +7,7 @@ from tqdm import tqdm
 import cv2
 
 # === Folder Dataset ===
-folder = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\train\ground_turmeric"
+folder = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\dataset_blmjadi\jahe"
 dup_folder = os.path.join(folder, "_duplicates")
 os.makedirs(dup_folder, exist_ok=True)
 

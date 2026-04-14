@@ -16,8 +16,8 @@ LR_STAGE1 = 1e-4
 LR_STAGE2 = 1e-5
 
 # === Path dataset ===
-train_dir = "dataset/train_augmented"
-valid_dir = "dataset/valid"
+train_dir = "dataset/dataset_jadi/train_augmented"
+valid_dir = "dataset/dataset_jadi/valid"
 
 # Pastikan folder model ada
 os.makedirs("model", exist_ok=True)

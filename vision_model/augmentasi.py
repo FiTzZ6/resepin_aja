@@ -3,8 +3,8 @@ import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img, array_to_img
 
 # === PATH DATASET ===
-base_dir = os.path.join(os.getcwd(), 'dataset', 'valid')
-augmented_dir = os.path.join(os.getcwd(), 'dataset', 'valid_augmented')
+base_dir = os.path.join(os.getcwd(), 'dataset','dataset1', 'train')
+augmented_dir = os.path.join(os.getcwd(), 'dataset','dataset1', 'train_augmented')
 
 os.makedirs(augmented_dir, exist_ok=True)
 

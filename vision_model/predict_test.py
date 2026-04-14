@@ -6,7 +6,7 @@ import os
 
 # === Path model dan dataset ===
 MODEL_PATH = "model/efficientnetb0_final.keras"   # ubah ke model terbaikmu
-TEST_DIR = "dataset/test"
+TEST_DIR = "dataset/dataset_jadi/train_augmented"
 
 # === Load model terbaik ===
 print(f"📦 Memuat model dari: {MODEL_PATH}")
