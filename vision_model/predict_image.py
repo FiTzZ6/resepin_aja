@@ -15,12 +15,13 @@ except Exception as e:
     print(f"❌ Gagal memuat model CNN: {e}")
     model = None
 
-class_names = [
-    'avocado', 'black_beans', 'butter', 'capsicum', 'carrots', 'chicken', 
-    'corn', 'cucumber', 'eggplant', 'garlic', 'ginger', 'green_onions', 
-    'honey', 'lemon', 'plum_tomatoes', 'potatoes', 'purple_onion', 
-    'spinach', 'telur', 'yellow_onion'
-]
+class_names = ['avocado', 'black_beans', 'butter', 'cabai', 'capsicum', 
+               'carrots', 'chicken', 'corn', 'cucumber', 'daun_jeruk', 
+               'eggplant', 'garlic', 'green_onions', 'honey', 'jahe', 
+               'keluwak', 'kembang_turi', 'kemiri', 'kunyit', 'lemon', 
+               'lengkuas', 'plum_tomatoes', 'potatoes', 'purple_onion', 
+               'santan', 'serai', 'spinach', 'telur', 'yellow_onion'
+               ]
 
 def predict_food_image(img_path):
     if model is None:
