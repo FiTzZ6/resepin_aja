@@ -5,7 +5,7 @@ import Login from './Login.vue';
 import Logout from './Logout.vue';
 import Register from './Register.vue';
 import Searchbar from './components/Searchbar.vue';
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 
 const userData = usePage().props.auth_user;
@@ -16,6 +16,32 @@ const isOpen = ref(false)
 const imageFiles = ref([])
 const detectedIngredients = ref([])
 const loading = ref(false)
+const currentTime = ref('')
+
+let interval = null
+
+const updateTime = () => {
+  const now = new Date()
+  // format WIB
+  currentTime.value = now.toLocaleString('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+onMounted(() => {
+  updateTime()
+  interval = setInterval(updateTime, 1000) // update tiap 1 detik
+})
+
+onUnmounted(() => {
+  clearInterval(interval)
+})
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
@@ -226,6 +252,9 @@ const handleFileChange = (e) => { imageFiles.value = Array.from(e.target.files) 
         <div class="footer-brand">
           <img src="../../../public/assets/Logo.png" alt="" width="40" height="40" />
           <div>
+            <div class="chatbot-head-sub">
+              {{ currentTime }}
+            </div>
             <div class="footer-brand-name">Resepin Aja</div>
             <div class="footer-brand-copy">© 2025 Ger Ger Jeger. Inc</div>
           </div>

@@ -382,7 +382,7 @@ def get_response(ints, intents_json, user_message):
         elif "malam" in msg_lower:
             waktu = "malam"
         else:
-            if 5 <= current_hour < 11:
+            if 5 <= current_hour < 7:
                 waktu = "pagi"
             elif 11 <= current_hour < 15:
                 waktu = "siang"

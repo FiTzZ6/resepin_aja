@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\HomeController;
+
 
 
 // Route::get('/', function () {
@@ -39,6 +41,6 @@ Route::post('/chatbot', [ChatbotController::class, 'sendMessage']);
 Route::post('/chatbot/image', [ChatbotController::class, 'handleImage']);
 Route::post('/chatbot/images', [ChatbotController::class, 'predictImages']);
 
-
+Route::get('/rekomendasi-waktu', [HomeController::class, 'rekomendasiWaktu']);
 
 

@@ -4,6 +4,36 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import App from './App.vue';
 import ResepCard from './components/ResepCard.vue';
 import StarRating from './components/StarRating.vue';
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+// state
+const waktuSekarang = ref('')
+const kategoriWaktu = ref('')
+const resepRekomendasi = ref([])
+
+// ambil dari backend (INI KUNCI UTAMA 🔥)
+const fetchRekomendasi = async () => {
+  try {
+    const res = await axios.get('/rekomendasi-waktu')
+
+    resepRekomendasi.value = res.data.data
+    kategoriWaktu.value = res.data.waktu
+    waktuSekarang.value = res.data.jam
+  } catch (err) {
+    console.error('Gagal ambil rekomendasi:', err)
+  }
+}
+
+// lifecycle
+onMounted(() => {
+  fetchRekomendasi()
+
+  // auto update tiap menit
+  setInterval(() => {
+    fetchRekomendasi()
+  }, 60000)
+})
 
 document.title = "Beranda – Resepin Aja";
 const data = defineProps({
@@ -104,6 +134,33 @@ const data = defineProps({
       <span class="divider-icon"><i class="bi bi-flower1"></i></span>
       <div class="divider-line"></div>
     </div>
+
+
+    <!-- ========== REKOMENDASI WAKTU ========== -->
+    <section class="terbaru-section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow-pill eyebrow-pill--gold">
+            <i class="bi bi-clock"></i> Rekomendasi {{ kategoriWaktu }}
+          </span>
+          <h2 class="section-title">
+            Cocok dimasak sekarang ({{ waktuSekarang }})
+          </h2>
+        </div>
+      </div>
+
+      <!-- kalau ada data -->
+      <div v-if="resepRekomendasi.length" class="resep-grid">
+        <div class="resep-grid-item" v-for="resep in resepRekomendasi" :key="resep.id_resep">
+          <ResepCard :resepData="resep" />
+        </div>
+      </div>
+
+      <!-- kalau belum ada data -->
+      <div v-else style="text-align:center; padding:20px; color:#888;">
+        Memuat rekomendasi...
+      </div>
+    </section>
 
     <!-- ========== RESEP TERBARU ========== -->
     <section class="terbaru-section">

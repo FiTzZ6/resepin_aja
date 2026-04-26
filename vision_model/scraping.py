@@ -9,15 +9,20 @@ import time
 # CONFIG
 # ========================
 queries = [
-    "jahe",
-    "ginger root",
-    "fresh ginger",
-    "jahe segar",
-    "ginger indonesia"
+    "daging ayam potong",
+    "ayam potong mentah bersih",
+    "potongan ayam mentah",
+    "daging ayam segar",
+    "ayam mentah di piring",
+    "ayam mentah di mangkuk",
+    "ayam di talenan bersih",
+    "daging ayam close up",
+    "ayam fillet mentah",
+    "potongan ayam bersih",
 ]
 
-save_folder = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\dataset_blmjadi\jahe"
-max_images = 300
+save_folder = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\ayam"
+max_images = 40
 
 if not os.path.exists(save_folder):
     os.makedirs(save_folder)
@@ -69,7 +74,7 @@ print(f"\nTotal unik ditemukan: {len(image_urls)} gambar")
 for i, url in enumerate(tqdm(list(image_urls)[:max_images])):
     try:
         img_data = requests.get(url, headers=headers, timeout=10).content
-        with open(os.path.join(save_folder, f"jahe{i}.jpg"), "wb") as f:
+        with open(os.path.join(save_folder, f"ayam{i}.jpg"), "wb") as f:
             f.write(img_data)
     except:
         continue
