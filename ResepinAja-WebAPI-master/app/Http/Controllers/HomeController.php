@@ -14,9 +14,9 @@ class HomeController extends Controller
         $hour = Carbon::now('Asia/Jakarta')->hour;
 
         // Tentukan kategori waktu
-        if ($hour >= 5 && $hour < 7) {
+        if ($hour >= 5 && $hour < 11) {
             $waktu = 'pagi';
-        } elseif ($hour <= 11 && $hour < 15) {
+        } elseif ($hour >= 11 && $hour < 15) {
             $waktu = 'siang';
         } elseif ($hour >= 15 && $hour < 18) {
             $waktu = 'sore';
@@ -41,7 +41,7 @@ class HomeController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'waktu' => $waktu,
+            'waktu' => strtoupper($waktu),
             'jam' => Carbon::now('Asia/Jakarta')->format('H:i'),
             'data' => $resep
         ]);
