@@ -7,7 +7,7 @@ from tqdm import tqdm
 import cv2
 
 # === Folder Dataset ===
-folder = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\dataset_jadi\valid\jahe"
+folder = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\dataset_baru_7sep\daging_sapi"
 dup_folder = os.path.join(folder, "_duplicates")
 removed_folder = os.path.join(folder, "_removed")
 

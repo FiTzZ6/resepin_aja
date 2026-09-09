@@ -3,8 +3,8 @@ import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img, array_to_img
 
 # === PATH DATASET ===
-base_dir = os.path.join(os.getcwd(), 'dataset','ayam')
-augmented_dir = os.path.join(os.getcwd(), 'dataset','ayam_augmented')
+base_dir = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\dataset_baru_7sep\train\cabe_rawit"
+augmented_dir = r"C:\xampp\htdocs\resepin_aja\vision_model\dataset\dataset_baru_7sep\train_augmented\cabai_rawit"
 
 os.makedirs(augmented_dir, exist_ok=True)
 
@@ -20,26 +20,21 @@ datagen = ImageDataGenerator(
     fill_mode='nearest'
 )
 
-# === LOOP SETIAP KELAS ===
-for class_name in os.listdir(base_dir):
-    class_path = os.path.join(base_dir, class_name)
-    save_path = os.path.join(augmented_dir, class_name)
-    os.makedirs(save_path, exist_ok=True)
+# === AMBIL GAMBAR LANGSUNG DARI FOLDER CABAI HIJAU ===
+images = [f for f in os.listdir(base_dir) if f.lower().endswith(('jpg', 'jpeg', 'png'))]
 
-    images = [f for f in os.listdir(class_path) if f.lower().endswith(('jpg', 'jpeg', 'png'))]
+print(f"🧩 Augmenting class 'cabai_rawit' ({len(images)} images)...")
 
-    print(f"🧩 Augmenting class '{class_name}' ({len(images)} images)...")
+for img_name in images:
+    img_path = os.path.join(base_dir, img_name)
+    img = load_img(img_path)
+    x = img_to_array(img)
+    x = np.expand_dims(x, axis=0)
 
-    for img_name in images:
-        img_path = os.path.join(class_path, img_name)
-        img = load_img(img_path)
-        x = img_to_array(img)
-        x = np.expand_dims(x, axis=0)
+    # Generate 4 variasi baru per gambar (jadi total 5x lipat)
+    aug_iter = datagen.flow(x, batch_size=1, save_to_dir=augmented_dir,
+                            save_prefix='aug', save_format='jpg')
+    for i in range(4):
+        next(aug_iter)
 
-        # Generate 4 variasi baru per gambar (jadi total 5x lipat)
-        aug_iter = datagen.flow(x, batch_size=1, save_to_dir=save_path,
-                                save_prefix='aug', save_format='jpg')
-        for i in range(4):
-            next(aug_iter)
-
-print("✅ Augmentasi selesai! Gambar hasil disimpan di folder 'valid_augmented'")
+print("✅ Augmentasi selesai!")

@@ -3,8 +3,8 @@ from collections import Counter
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # === PATH DATASET ===
-base_dir = os.path.join(os.getcwd(), 'dataset', 'dataset_jadi')
-train_dir = os.path.join(base_dir, 'train_augmented')
+base_dir = os.path.join(os.getcwd(), 'dataset', 'dataset_baru_7sep')
+train_dir = os.path.join(base_dir, 'train_augmentasi')
 valid_dir = os.path.join(base_dir, 'valid')
 test_dir = os.path.join(base_dir, 'test')
 

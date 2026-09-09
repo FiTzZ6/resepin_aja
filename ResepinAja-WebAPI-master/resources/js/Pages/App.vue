@@ -455,7 +455,7 @@ a { color: inherit; text-decoration: none; }
   font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; color: var(--text);
 }
 .logo-text em { color: var(--gold); font-style: italic; }
-.nav-search { flex: 1; max-width: 500px; }
+.nav-search { flex: 1; max-width: 500ppx; }
 .nav-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .nav-link {
   font-size: 14px; font-weight: 500; color: var(--text2);

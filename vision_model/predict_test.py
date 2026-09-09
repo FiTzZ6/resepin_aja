@@ -19,8 +19,8 @@ import matplotlib.pyplot as plt
 # =========================
 # PATH
 # =========================
-MODEL_PATH = "model/efficientnetb0_final.keras"
-TEST_DIR = "dataset/dataset_jadi/test"
+MODEL_PATH = "model/best_effnetb0_baru_final.keras"
+TEST_DIR = "dataset/dataset_baru_7sep/test"
 
 # =========================
 # LOAD MODEL
