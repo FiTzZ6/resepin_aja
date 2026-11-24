@@ -5,9 +5,24 @@
       "patterns": [
         "Halo",
         "Hai",
+        "Hi",
+        "Halo chatbot",
+        "Hai asisten resep",
         "Selamat pagi",
         "Selamat siang",
-        "Apa kabar?"
+        "Selamat sore",
+        "Selamat malam",
+        "Apa kabar?",
+        "Permisi",
+        "Halo, ada?",
+        "Halo, apakah kamu aktif?",
+        "Halo, senang bertemu lagi",
+        "Halo, selamat datang",
+        "Pagi, chatbot",
+        "Halo asisten masak",
+        "Hai, bisa dengar aku?",
+        "Permisi, ada asisten?",
+        "Halo, aku datang lagi"
       ],
       "responses": [
         "Halo! Lagi pengen masak apa hari ini?",
@@ -21,11 +36,27 @@
         "Cara buat nasi goreng",
         "Resep nasi goreng",
         "Masak nasi goreng gimana?",
-        "Gimana cara bikin nasi goreng?"
+        "Gimana cara bikin nasi goreng?",
+        "Langkah membuat nasi goreng",
+        "Bahan nasi goreng apa saja?",
+        "Cara memasak nasi goreng sederhana",
+        "Aku mau bikin nasi goreng",
+        "Bagaimana membuat nasi goreng yang enak?",
+        "Resep nasi goreng rumahan",
+        "Nasi goreng pakai telur bagaimana?",
+        "Cara bikin nasi goreng tanpa ayam",
+        "Bumbu nasi goreng yang sederhana apa?",
+        "Bagaimana membuat nasi goreng kampung?",
+        "Cara memasak nasi goreng pedas",
+        "Aku ingin membuat nasi goreng spesial",
+        "Nasi goreng supaya tidak lembek bagaimana?",
+        "Apa saja bumbu untuk nasi goreng Jawa?",
+        "Tutorial memasak nasi goreng untuk pemula",
+        "Cara membuat nasi goreng tanpa kecap"
       ],
       "responses": [
-        "Berikut resep nasi goreng sederhana: tumis bawang putih dan bawang merah, tambahkan telur dan nasi, beri kecap manis, garam, dan merica. Aduk rata, jadi deh!",
-        "Untuk nasi goreng enak, tambahkan sedikit saus tiram dan potongan ayam atau sosis biar makin mantap!"
+        "Berikut resep nasi goreng sederhana: tumis bawang putih dan bawang merah, tambahkan telur dan nasi, beri kecap manis, garam, dan merica. Aduk rata sampai matang.",
+        "Untuk nasi goreng yang lebih mantap, kamu bisa menambahkan potongan ayam atau sosis. Sesuaikan bumbu dengan selera."
       ]
     },
     {
@@ -34,11 +65,27 @@
         "Cara buat ayam goreng",
         "Resep ayam goreng",
         "Masak ayam goreng gimana?",
-        "Gimana cara bikin ayam goreng?"
+        "Gimana cara bikin ayam goreng?",
+        "Langkah menggoreng ayam",
+        "Bumbu ayam goreng apa saja?",
+        "Aku mau masak ayam goreng",
+        "Cara membuat ayam goreng rumahan",
+        "Ayam goreng biar renyah bagaimana?",
+        "Cara marinasi ayam sebelum digoreng",
+        "Resep ayam goreng sederhana",
+        "Bagaimana membuat ayam goreng kremes?",
+        "Cara membuat ayam goreng tepung",
+        "Bumbu ungkep ayam goreng apa saja?",
+        "Tips supaya ayam goreng matang sampai dalam",
+        "Aku ingin memasak ayam goreng kuning",
+        "Cara menggoreng ayam agar tidak gosong",
+        "Resep ayam goreng bawang putih",
+        "Bagaimana cara membuat ayam goreng gurih?",
+        "Cara bikin ayam goreng tanpa tepung"
       ],
       "responses": [
-        "Cuci ayam, marinasi dengan bawang putih, ketumbar, garam, dan kunyit. Diamkan 30 menit lalu goreng sampai kecokelatan.",
-        "Tips: gunakan api sedang supaya ayam matang merata dan renyah!"
+        "Cuci ayam, marinasi dengan bawang putih, ketumbar, garam, dan kunyit. Diamkan sekitar 30 menit, lalu goreng sampai matang merata.",
+        "Gunakan api sedang dan pastikan ayam matang sampai bagian dalamnya, bukan hanya kecokelatan di luar."
       ]
     },
     {
@@ -47,11 +94,27 @@
         "Cara buat soto ayam",
         "Resep soto ayam",
         "Masak soto ayam gimana?",
-        "Gimana cara bikin soto ayam?"
+        "Gimana cara bikin soto ayam?",
+        "Bahan soto ayam apa saja?",
+        "Cara memasak soto ayam rumahan",
+        "Aku ingin bikin soto ayam",
+        "Bumbu kuah soto ayam apa?",
+        "Langkah membuat soto ayam",
+        "Soto ayam cocok disajikan dengan apa?",
+        "Bagaimana cara membuat soto ayam bening?",
+        "Resep soto ayam Lamongan",
+        "Cara membuat kuah soto ayam yang gurih",
+        "Apa saja rempah untuk soto ayam?",
+        "Aku mau masak soto ayam kuning",
+        "Cara membuat soto ayam sederhana tanpa santan",
+        "Soto ayam pakai bahan apa saja?",
+        "Bagaimana memasak soto ayam untuk keluarga?",
+        "Resep soto ayam khas rumahan",
+        "Cara meracik bumbu soto ayam"
       ],
       "responses": [
-        "Rebus ayam dengan serai, daun salam, dan jahe. Tumis bumbu halus (bawang putih, bawang merah, kemiri, kunyit), lalu campur ke kuah ayam. Tambah soun dan telur rebus.",
-        "Soto ayam khas Indonesia! Sajikan dengan sambal dan jeruk nipis biar segar!"
+        "Rebus ayam dengan serai, daun salam, dan jahe. Tumis bumbu halus berupa bawang putih, bawang merah, kemiri, dan kunyit, lalu masukkan ke kuah. Sajikan dengan soun dan telur rebus.",
+        "Soto ayam bisa disajikan dengan sambal, jeruk nipis, dan bawang goreng."
       ]
     },
     {
@@ -60,11 +123,27 @@
         "Resep rendang",
         "Cara buat rendang",
         "Masak rendang gimana?",
-        "Gimana cara bikin rendang?"
+        "Gimana cara bikin rendang?",
+        "Bahan rendang apa saja?",
+        "Cara memasak rendang daging sapi",
+        "Bumbu rendang apa saja?",
+        "Aku mau bikin rendang",
+        "Tips agar rendang empuk",
+        "Bagaimana membuat rendang Padang?",
+        "Resep rendang daging yang empuk",
+        "Cara memasak rendang sampai bumbunya meresap",
+        "Apa saja rempah untuk rendang?",
+        "Cara bikin rendang yang tidak cepat basi",
+        "Aku ingin membuat rendang sapi",
+        "Rendang pakai santan berapa banyak?",
+        "Bagaimana agar rendang tidak gosong?",
+        "Resep rendang rumahan",
+        "Cara memasak rendang kering",
+        "Bagaimana membuat rendang dengan bumbu lengkap?"
       ],
       "responses": [
-        "Rendang dibuat dari daging sapi dimasak lama dengan santan dan bumbu halus (cabai, bawang, jahe, lengkuas, kunyit, serai). Masak sampai kering dan berminyak.",
-        "Kunci rendang enak adalah sabar! Masak dengan api kecil biar bumbunya meresap sempurna."
+        "Rendang dibuat dari daging sapi yang dimasak bersama santan dan bumbu seperti cabai, bawang, jahe, lengkuas, kunyit, serta serai. Masak perlahan hingga bumbu meresap dan kuah menyusut.",
+        "Kunci rendang adalah memasaknya dengan api kecil dan mengaduk secara berkala agar bumbu meresap dan tidak mudah gosong."
       ]
     },
     {
@@ -72,12 +151,28 @@
       "patterns": [
         "Gak ada kecap manis bisa diganti apa?",
         "Kalau gak punya santan pakai apa?",
-        "Boleh ganti daging sapi pakai ayam gak?"
+        "Boleh ganti daging sapi pakai ayam gak?",
+        "Pengganti telur untuk adonan apa?",
+        "Kalau tidak ada bawang putih bagaimana?",
+        "Santan bisa diganti susu?",
+        "Apa alternatif kecap manis?",
+        "Bahan pengganti cabai apa?",
+        "Kalau tidak punya tepung terigu pakai apa?",
+        "Ketumbar habis, bumbu apa yang bisa digunakan?",
+        "Apa pengganti kemiri dalam masakan?",
+        "Kalau tidak ada daun salam, apa alternatifnya?",
+        "Bisakah gula merah diganti gula pasir?",
+        "Minyak goreng bisa diganti mentega?",
+        "Apa bahan pengganti ikan untuk resep ini?",
+        "Kalau kehabisan jahe, pakai apa?",
+        "Bisa mengganti susu dengan santan?",
+        "Alternatif tepung maizena apa?",
+        "Aku tidak punya merica, apakah bisa dihilangkan?",
+        "Bahan apa yang cocok menggantikan kecap asin?"
       ],
       "responses": [
-        "Kalau gak ada kecap manis, bisa pakai campuran kecap asin dan sedikit gula merah cair.",
-        "Kalau gak ada santan, bisa diganti susu cair tapi rasanya lebih ringan.",
-        "Tentu boleh! Daging ayam bisa jadi alternatif lebih cepat matang."
+        "Pengganti bahan bergantung pada resepnya. Sebutkan bahan yang ingin diganti dan masakan yang sedang dibuat agar saranku lebih sesuai.",
+        "Beberapa bahan bisa diganti, tetapi rasa dan teksturnya mungkin berubah. Bahan apa yang ingin kamu ganti?"
       ]
     },
     {
@@ -86,12 +181,28 @@
         "Resep pisang goreng",
         "Cara buat martabak telur mini",
         "Gimana bikin risol?",
-        "Cemilan sore enak apa ya?"
+        "Cemilan sore enak apa ya?",
+        "Cara membuat bakwan",
+        "Resep tahu crispy",
+        "Cara bikin cireng",
+        "Camilan mudah untuk keluarga",
+        "Aku mau bikin gorengan",
+        "Resep camilan sederhana",
+        "Bagaimana membuat keripik singkong?",
+        "Cara membuat donat kentang",
+        "Resep onde-onde isi kacang hijau",
+        "Camilan dari pisang selain pisang goreng apa?",
+        "Cara bikin tahu bulat yang renyah",
+        "Ada resep pastel mini?",
+        "Bagaimana membuat roti goreng untuk camilan?",
+        "Resep kue cubit sederhana",
+        "Cara membuat singkong keju",
+        "Aku ingin membuat camilan untuk tamu"
       ],
       "responses": [
-        "Pisang goreng: potong pisang, celupkan ke adonan tepung terigu + gula, lalu goreng sampai keemasan.",
-        "Martabak telur mini: kulit lumpia isi telur dan daun bawang, goreng sampai renyah!",
-        "Risol isi sayur atau ayam bisa jadi cemilan enak, goreng pakai api sedang ya!"
+        "Pisang goreng: celupkan potongan pisang ke adonan tepung, lalu goreng sampai keemasan.",
+        "Martabak telur mini bisa dibuat dari kulit lumpia berisi telur dan daun bawang, kemudian digoreng sampai renyah.",
+        "Risol isi sayur atau ayam bisa jadi camilan. Gunakan api sedang agar matang merata."
       ]
     },
     {
@@ -99,7 +210,24 @@
       "patterns": [
         "Terima kasih",
         "Makasih ya",
-        "Thanks"
+        "Thanks",
+        "Terima kasih banyak",
+        "Makasih sudah membantu",
+        "Oke makasih",
+        "Sip, terima kasih",
+        "Terima kasih atas jawabannya",
+        "Wah, membantu sekali, makasih",
+        "Makasih banyak untuk sarannya",
+        "Terima kasih sudah menjelaskan",
+        "Aku berterima kasih atas bantuanmu",
+        "Thanks ya, bot",
+        "Makasih infonya",
+        "Terima kasih, ini berguna",
+        "Oke, terima kasih bantuannya",
+        "Makasih sudah kasih tahu",
+        "Terima kasih banyak ya",
+        "Sip, jawabannya membantu",
+        "Makasih, aku jadi paham"
       ],
       "responses": [
         "Sama-sama! Selamat mencoba resepnya! 🍳",
@@ -111,7 +239,24 @@
       "patterns": [
         "Dadah",
         "Sampai jumpa",
-        "Bye"
+        "Bye",
+        "Sampai nanti",
+        "Aku pergi dulu",
+        "Terima kasih, sampai jumpa",
+        "Sampai ketemu lagi",
+        "Aku pamit dulu",
+        "Sampai bertemu lain waktu",
+        "Oke, aku tutup dulu",
+        "Selamat tinggal",
+        "Dah, sampai nanti",
+        "Aku harus pergi sekarang",
+        "Sampai jumpa lagi ya",
+        "Bye bye, chatbot",
+        "Aku akhiri percakapan dulu",
+        "Pamit ya",
+        "Sampai ngobrol lagi",
+        "Oke, sampai lain kesempatan",
+        "Dadah, sampai nanti"
       ],
       "responses": [
         "Sampai jumpa lagi di resep berikutnya!",
@@ -121,29 +266,202 @@
     {
       "tag": "cari_resep",
       "patterns": [
-        "Cari resep ayam",
-        "Ada resep nasi goreng?",
-        "Resep dengan telur",
-        "Resep pakai cabai"
+        "Tolong carikan resep masakan",
+        "Aku mau mencari resep",
+        "Tampilkan daftar resep yang tersedia",
+        "Bantu aku menemukan resep",
+        "Aku ingin melihat daftar resep",
+        "Buka katalog resep masakan",
+        "Cari resep masakan Indonesia",
+        "Tunjukkan koleksi resep yang ada",
+        "Aku ingin menjelajahi kumpulan resep",
+        "Tolong tampilkan pilihan resep",
+        "Cari resep makanan tradisional",
+        "Di mana aku bisa melihat daftar resep?",
+        "Tampilkan semua pilihan resep",
+        "Aku ingin mencari inspirasi dari katalog resep",
+        "Bisa membuka daftar resep masakan?",
+        "Aku perlu daftar resep untuk dipilih",
+        "Tolong tampilkan kumpulan resep terbaru",
+        "Ada kumpulan resep yang bisa dilihat?",
+        "Aku mau menelusuri koleksi resep",
+        "Tampilkan halaman daftar resep"
       ],
       "responses": [
         "Baik, saya bantu carikan resepnya ya..."
       ]
     },
-    
     {
       "tag": "cari_bahan",
       "patterns": [
-        "Aku punya *",
-        "Bahan di kulkasku *",
-        "Aku cuma ada *",
-        "Bisa masak pakai *?",
-        "Ada resep pakai *?",
-        "Pakai * aja"
+        "Aku punya telur dan ayam, bisa masak apa?",
+        "Bahan di kulkasku ada bawang putih",
+        "Aku cuma ada cabai dan tomat",
+        "Di rumah tersedia telur untuk dimasak",
+        "Bahan yang ada cuma kentang dan wortel",
+        "Aku punya santan, bisa diolah jadi apa?",
+        "Resep dari bahan yang tersedia di rumah",
+        "Bahan yang aku punya adalah tahu dan tempe",
+        "Aku punya bawang merah, bawang putih, dan telur",
+        "Di kulkas ada ikan dan sayuran, enaknya dibuat apa?",
+        "Aku punya sisa nasi dan dua butir telur",
+        "Di dapur hanya ada mi dan sawi",
+        "Ada daging ayam dan brokoli di rumah",
+        "Aku punya terong, cabai, dan tomat",
+        "Bahan yang tersedia cuma tepung dan pisang",
+        "Aku punya udang dan jagung untuk dimasak",
+        "Di rumah ada tempe, kecap, dan bawang",
+        "Aku punya bahan ikan, jahe, dan jeruk nipis",
+        "Bisa beri ide dari bahan yang ada di kulkas?",
+        "Aku ingin memasak memakai bahan yang tersedia saja"
       ],
       "responses": [
-        "Sebentar ya, aku carikan resepnya!",
-        "Oke, aku bantu cari resep yang cocok 😉"
+        "Sebentar ya, aku carikan resep yang cocok!",
+        "Oke, aku bantu cari resep yang sesuai dengan bahanmu 😉"
+      ]
+    },
+    {
+      "tag": "rekomendasi_resep",
+      "patterns": [
+        "Aku masak apa hari ini?",
+        "Rekomendasi makanan dong",
+        "Enaknya makan apa?",
+        "Kasih ide masakan untuk hari ini",
+        "Aku sedang mencari inspirasi menu",
+        "Rekomendasi menu makan malam",
+        "Menu makan siang yang cocok apa?",
+        "Ada saran masakan yang enak?",
+        "Rekomendasi makanan untuk keluarga",
+        "Ide menu makan hari ini",
+        "Tolong sarankan hidangan untuk akhir pekan",
+        "Aku ingin mencoba masakan baru",
+        "Menu apa yang cocok untuk makan bersama keluarga?",
+        "Beri aku ide hidangan untuk besok",
+        "Aku belum menentukan mau masak apa",
+        "Saran menu rumahan hari ini apa?",
+        "Apa hidangan menarik yang bisa kucoba?",
+        "Tolong pilihkan ide masakan untuk makan siang",
+        "Aku butuh inspirasi menu harian",
+        "Sebutkan beberapa pilihan masakan yang enak"
+      ],
+      "responses": [
+        "Aku bantu carikan rekomendasi resep yang cocok untukmu!",
+        "Boleh! Yuk, cari ide masakan yang menarik hari ini."
+      ]
+    },
+    {
+      "tag": "resep_mudah",
+      "patterns": [
+        "Resep masakan yang mudah dibuat",
+        "Masakan sederhana untuk pemula",
+        "Aku mau masak yang gampang",
+        "Resep praktis untuk sehari-hari",
+        "Masakan yang tidak membutuhkan banyak bahan",
+        "Ada resep dengan langkah yang sederhana?",
+        "Resep simpel untuk pemula",
+        "Masakan rumahan yang mudah",
+        "Aku baru belajar memasak, resep apa yang cocok?",
+        "Tolong carikan menu dengan langkah sederhana",
+        "Resep apa yang tidak rumit cara membuatnya?",
+        "Aku ingin masak tanpa teknik yang sulit",
+        "Masakan praktis untuk orang yang belum mahir",
+        "Beri resep dengan sedikit langkah",
+        "Ada hidangan mudah untuk pemula?",
+        "Aku ingin resep yang gampang diikuti",
+        "Masakan apa yang paling sederhana dibuat di rumah?",
+        "Aku tidak terlalu bisa memasak, ada saran?",
+        "Carikan resep dengan persiapan mudah",
+        "Menu sehari-hari yang tidak merepotkan apa?"
+      ],
+      "responses": [
+        "Aku bantu carikan resep yang sederhana dan mudah dibuat!",
+        "Kita cari resep praktis dengan bahan yang mudah ditemukan."
+      ]
+    },
+    {
+      "tag": "waktu_memasak",
+      "patterns": [
+        "Resep yang selesai dalam 15 menit",
+        "Aku mau masak dalam waktu singkat",
+        "Ada resep yang tidak membutuhkan waktu lama?",
+        "Masakan apa yang paling cepat dibuat?",
+        "Resep untuk orang yang waktunya terbatas",
+        "Carikan resep kurang dari 30 menit",
+        "Makanan yang cepat disiapkan apa?",
+        "Aku hanya punya waktu 20 menit untuk memasak",
+        "Tampilkan resep yang waktu masaknya singkat",
+        "Ada menu yang bisa dibuat dalam 10 menit?",
+        "Aku butuh resep praktis untuk makan malam sebentar lagi",
+        "Masakan yang bisa selesai sebelum setengah jam apa?",
+        "Cari resep dengan durasi memasak singkat",
+        "Aku tidak punya banyak waktu di dapur",
+        "Apa ada resep cepat untuk sarapan?",
+        "Pilihkan makanan yang cepat disajikan",
+        "Resep apa yang cocok jika waktuku cuma sebentar?",
+        "Aku perlu masakan yang selesai secepatnya",
+        "Tolong carikan resep dengan waktu persiapan singkat",
+        "Menu praktis yang bisa matang kurang dari 30 menit"
+      ],
+      "responses": [
+        "Aku bisa membantu mencari resep sesuai waktu yang tersedia. Berapa menit waktu yang kamu punya untuk memasak?",
+        "Sebutkan perkiraan waktumu, misalnya 15 atau 30 menit, agar aku bisa membantu mencari resep yang sesuai."
+      ]
+    },
+    {
+      "tag": "bantuan",
+      "patterns": [
+        "Kamu bisa membantu apa?",
+        "Bagaimana cara menggunakan chatbot ini?",
+        "Apa saja yang bisa kamu lakukan?",
+        "Aku mau tahu fitur chatbot ini",
+        "Apakah chatbot ini memiliki fitur pencarian resep?",
+        "Cara mencari resep di sini bagaimana?",
+        "Fitur apa saja yang tersedia?",
+        "Bagaimana cara kerja chatbot ini?",
+        "Jelaskan cara memakai asisten resep ini",
+        "Bagaimana memulai percakapan di sini?",
+        "Panduan menggunakan aplikasi ini apa?",
+        "Aku ingin tahu fungsi chatbot ini",
+        "Apa yang harus kulakukan untuk mencari resep?",
+        "Beri petunjuk penggunaan chatbot",
+        "Layanan apa saja yang disediakan asisten ini?",
+        "Bisakah kamu menjelaskan fitur yang tersedia?",
+        "Bagaimana cara mencari masakan berdasarkan bahan?",
+        "Tolong tunjukkan cara memulai pencarian",
+        "Apa yang bisa kutanyakan di chatbot ini?",
+        "Aku perlu panduan menggunakan fitur resep"
+      ],
+      "responses": [
+        "Aku bisa membantu mencari resep, menemukan masakan berdasarkan bahan yang kamu punya, memberi ide menu, dan mencari resep berdasarkan waktu memasak."
+      ]
+    },
+    {
+      "tag": "tidak_paham",
+      "patterns": [
+        "Aku belum memahami jawabanmu",
+        "Apa maksud penjelasan tadi?",
+        "Jawaban tadi kurang jelas",
+        "Bisa jelaskan ulang?",
+        "Aku masih belum mengerti",
+        "Penjelasannya membingungkan",
+        "Apa maksud kata itu?",
+        "Tolong gunakan bahasa yang lebih sederhana",
+        "Aku tidak mengerti maksudmu",
+        "Bisa ulangi penjelasannya?",
+        "Aku belum menangkap maksud jawaban itu",
+        "Penjelasanmu sulit kupahami",
+        "Maksud dari kalimat tadi apa?",
+        "Tolong jelaskan dengan cara lain",
+        "Aku masih bingung dengan penjelasan tersebut",
+        "Boleh terangkan lagi secara sederhana?",
+        "Aku kurang paham maksud pesanmu",
+        "Bisa dibuat lebih jelas?",
+        "Aku tidak mengerti bagian yang kamu jelaskan",
+        "Tolong perjelas jawaban sebelumnya"
+      ],
+      "responses": [
+        "Tidak apa-apa, aku jelaskan dengan cara yang lebih sederhana. Bagian mana yang ingin kamu pahami?",
+        "Maaf kalau jawabanku kurang jelas. Coba tanyakan bagian yang membingungkan, ya."
       ]
     }
   ]

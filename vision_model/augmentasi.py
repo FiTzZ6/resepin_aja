@@ -1,3 +1,6 @@
+#AUGMENTASI OFFLINE
+
+
 import os
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img, array_to_img

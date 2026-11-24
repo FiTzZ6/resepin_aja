@@ -13,6 +13,8 @@ const message = ref('')
 const chats = ref([])
 const isOpen = ref(false)
 const imageFiles = ref([])
+const imagePreviews = ref([])
+const allPreviewUrls = ref([])
 const loading = ref(false)
 const currentTime = ref('')
 const scrolled = ref(false)
@@ -46,7 +48,10 @@ onMounted(() => {
   timeInterval = setInterval(updateTime, 1000)
   window.addEventListener('scroll', () => { scrolled.value = window.scrollY > 24 })
 })
-onUnmounted(() => clearInterval(timeInterval))
+onUnmounted(() => {
+  clearInterval(timeInterval)
+  allPreviewUrls.value.forEach(url => URL.revokeObjectURL(url))
+})
 
 const scrollToBottom = () => nextTick(() => {
   const el = document.querySelector('.cb-messages')
@@ -72,23 +77,95 @@ const sendMessage = async () => {
 
 const sendImage = async () => {
   if (!imageFiles.value.length) return
-  chats.value.push({ user: `📷 ${imageFiles.value.length} foto dikirim`, bot: null })
+
+  chats.value.push({
+    user: '',
+    userImages: [...imagePreviews.value],
+    bot: null
+  })
+
   scrollToBottom()
+
   const fd = new FormData()
   imageFiles.value.forEach(f => fd.append('files[]', f))
+
   try {
     loading.value = true
+
     const res = await axios.post('/chatbot/images', fd)
+
     if (res.data.status === 'success') {
-      const ing = res.data.data.map(d => d.predicted_label)
-      chats.value[chats.value.length - 1].bot = `Terdeteksi: ${ing.join(', ')}`
-      setTimeout(() => { window.location.href = `/resepcari?cari_bahan=${encodeURIComponent(ing.join(','))}` }, 1500)
+      const predictions = res.data.data || []
+
+      // Ambil hanya prediksi dengan confidence >= 45%
+      const accepted = predictions.filter(
+        item => item.is_accepted === true
+      )
+
+      const rejected = predictions.filter(
+        item => item.is_accepted === false
+      )
+
+      // Jika tidak ada foto yang lolos
+      if (accepted.length === 0) {
+        const highestConfidence = predictions.length
+          ? Math.max(...predictions.map(item => item.confidence))
+          : 0
+
+        chats.value[chats.value.length - 1].bot =
+          `Maaf, bahan makanan belum dapat dikenali dengan yakin. ` +
+          `Confidence tertinggi ${highestConfidence}%. ` +
+          `Silakan unggah foto yang lebih jelas.`
+
+        return
+      }
+
+      // Ambil nama bahan yang lolos
+      const ingredients = accepted.map(
+        item => item.predicted_label
+      )
+
+      let response = `Bahan berhasil dikenali: ${ingredients.join(', ')}.`
+
+      if (rejected.length > 0) {
+        response += ` ${rejected.length} foto tidak digunakan karena confidence di bawah 45%.`
+      }
+
+      chats.value[chats.value.length - 1].bot = response
+
+      // Kirim hanya bahan yang lolos ke pencarian resep
+      setTimeout(() => {
+        window.location.href =
+          `/resepcari?cari_bahan=${encodeURIComponent(ingredients.join(','))}`
+      }, 1500)
+    } else {
+      chats.value[chats.value.length - 1].bot =
+        'Gagal memproses gambar. Silakan coba kembali.'
     }
-  } catch { chats.value[chats.value.length - 1].bot = 'Gagal memproses.' }
-  finally { loading.value = false; imageFiles.value = []; scrollToBottom() }
+
+  } catch (error) {
+    chats.value[chats.value.length - 1].bot =
+      'Gagal memproses gambar. Periksa koneksi ke server.'
+
+  } finally {
+    loading.value = false
+    imageFiles.value = []
+    imagePreviews.value = []
+    scrollToBottom()
+  }
 }
 
-const handleFileChange = (e) => { imageFiles.value = Array.from(e.target.files) }
+const handleFileChange = (e) => {
+  const files = Array.from(e.target.files || [])
+  imageFiles.value = files
+
+  // Buat URL preview agar gambar langsung terlihat sebelum dikirim.
+  imagePreviews.value = files.map(file => {
+    const url = URL.createObjectURL(file)
+    allPreviewUrls.value.push(url)
+    return url
+  })
+}
 </script>
 
 <template>
@@ -144,7 +221,9 @@ const handleFileChange = (e) => { imageFiles.value = Array.from(e.target.files) 
             </button>
           </template>
 
-          <!-- Theme toggle -->
+          <button class="theme-toggle desktop-theme-toggle" @click="toggleTheme" :aria-label="isDark ? 'Aktifkan tema putih' : 'Aktifkan tema hitam'" :title="isDark ? 'Tema putih' : 'Tema hitam'">
+            <i class="bi" :class="isDark ? 'bi-sun-fill' : 'bi-moon-fill'"></i>
+          </button>
         </div>
 
         <!-- Hamburger -->
@@ -207,7 +286,18 @@ const handleFileChange = (e) => { imageFiles.value = Array.from(e.target.files) 
               <p>Halo! Mau masak apa hari ini? 🍳</p>
             </div>
             <div v-for="(c,i) in chats" :key="i" class="cb-pair">
-              <div class="bubble bubble-you">{{ c.user }}</div>
+              <div v-if="c.user || c.userImages?.length" class="bubble bubble-you">
+                <span v-if="c.user">{{ c.user }}</span>
+                <div v-if="c.userImages?.length" class="cb-chat-images">
+                  <img
+                    v-for="(image, imageIndex) in c.userImages"
+                    :key="imageIndex"
+                    :src="image"
+                    :alt="`Foto bahan ${imageIndex + 1}`"
+                    class="cb-chat-image"
+                  />
+                </div>
+              </div>
               <div class="bubble bubble-bot">
                 <span v-if="c.bot === null" class="typing"><span></span><span></span><span></span></span>
                 <span v-else>{{ c.bot }}</span>
@@ -222,14 +312,31 @@ const handleFileChange = (e) => { imageFiles.value = Array.from(e.target.files) 
                 <i class="bi bi-send-fill"></i>
               </button>
             </div>
-            <label class="cb-imgrow">
-              <i class="bi bi-image"></i>
-              <span>{{ imageFiles.length ? imageFiles.length + ' foto dipilih' : 'Kirim foto bahan' }}</span>
-              <input type="file" multiple accept="image/*" @change="handleFileChange" class="d-none" />
-              <button v-if="imageFiles.length" @click.prevent="sendImage" class="cb-imgbtn" :disabled="loading">
-                Cari <i class="bi bi-arrow-right"></i>
+            <div v-if="imagePreviews.length" class="cb-selected-images">
+              <div class="cb-selected-heading">
+                <span>{{ imagePreviews.length }} foto siap dikirim</span>
+                <button type="button" class="cb-clear-images" @click="imageFiles = []; imagePreviews = []">Hapus pilihan</button>
+              </div>
+              <div class="cb-preview-list">
+                <img
+                  v-for="(image, index) in imagePreviews"
+                  :key="index"
+                  :src="image"
+                  :alt="`Preview foto ${index + 1}`"
+                  class="cb-preview-image"
+                />
+              </div>
+            </div>
+            <div class="cb-imgrow">
+              <label class="cb-imglabel">
+                <i class="bi bi-image"></i>
+                <span>{{ imageFiles.length ? imageFiles.length + ' foto dipilih' : 'Kirim foto bahan' }}</span>
+                <input type="file" multiple accept="image/*" @change="handleFileChange" class="d-none" />
+              </label>
+              <button v-if="imageFiles.length" @click="sendImage" class="cb-imgbtn" :disabled="loading">
+                {{ loading ? 'Memproses...' : 'Kirim foto' }} <i class="bi bi-arrow-right"></i>
               </button>
-            </label>
+            </div>
           </div>
         </div>
       </transition>
@@ -273,59 +380,63 @@ const handleFileChange = (e) => { imageFiles.value = Array.from(e.target.files) 
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── DARK THEME (default) ── */
+/* ── BLACK & WHITE THEME ── */
 :root, [data-theme="dark"] {
-  --bg:         #1c1c1c;
-  --bg2:        #242424;
-  --bg3:        #2c2c2c;
-  --bg4:        #343434;
+  color-scheme: dark;
+  --bg:         #090909;
+  --bg2:        #141414;
+  --bg3:        #202020;
+  --bg4:        #2b2b2b;
   --border:     rgba(255,255,255,0.10);
-  --border2:    rgba(255,255,255,0.16);
-  --text:       #f0ece4;
-  --text2:      rgba(240,236,228,0.70);
-  --text3:      rgba(240,236,228,0.40);
-  --text4:      rgba(240,236,228,0.24);
-  --gold:       #d4a853;
-  --gold-light: #e8c068;
-  --gold-bg:    rgba(212,168,83,0.12);
-  --gold-bd:    rgba(212,168,83,0.28);
-  --danger:     #e57373;
-  --danger-bg:  rgba(229,115,115,0.12);
-  --success:    #66bb6a;
-  --nav-bg:     rgba(28,28,28,0.70);
-  --nav-raised: rgba(28,28,28,0.96);
-  --footer-bg:  #161616;
-  --shadow:     0 4px 24px rgba(0,0,0,0.35);
-  --shadow-lg:  0 12px 48px rgba(0,0,0,0.50);
+  --border2:    rgba(255,255,255,0.18);
+  --text:       #f5f5f5;
+  --text2:      rgba(255,255,255,0.72);
+  --text3:      rgba(255,255,255,0.46);
+  --text4:      rgba(255,255,255,0.28);
+  --gold:       #f2f2f2;
+  --accent-text: #090909;
+  --gold-light: #ffffff;
+  --gold-bg:    rgba(255,255,255,0.09);
+  --gold-bd:    rgba(255,255,255,0.24);
+  --danger:     #d0d0d0;
+  --danger-bg:  rgba(255,255,255,0.08);
+  --success:    #eeeeee;
+  --nav-bg:     rgba(9,9,9,0.78);
+  --nav-raised: rgba(9,9,9,0.97);
+  --footer-bg:  #050505;
+  --shadow:     0 4px 24px rgba(0,0,0,0.40);
+  --shadow-lg:  0 12px 48px rgba(0,0,0,0.58);
   --radius:     14px;
   --radius-lg:  20px;
   --radius-xl:  28px;
 }
 
-/* ── LIGHT THEME ── */
+/* ── WHITE THEME ── */
 [data-theme="light"] {
-  --bg:         #f5f2ed;
-  --bg2:        #ffffff;
-  --bg3:        #ede9e3;
-  --bg4:        #e5e0d8;
-  --border:     rgba(0,0,0,0.09);
-  --border2:    rgba(0,0,0,0.15);
-  --text:       #1e1a14;
-  --text2:      rgba(30,26,20,0.65);
-  --text3:      rgba(30,26,20,0.42);
-  --text4:      rgba(30,26,20,0.22);
-  --gold:       #b8892a;
-  --gold-light: #c9973a;
-  --gold-bg:    rgba(184,137,42,0.10);
-  --gold-bd:    rgba(184,137,42,0.28);
-  --danger:     #c0392b;
-  --danger-bg:  rgba(192,57,43,0.10);
-  --success:    #2e7d32;
-  --nav-bg:     rgba(245,242,237,0.80);
-  --nav-raised: rgba(245,242,237,0.98);
-  --footer-bg:  #ebe7e0;
-  --shadow:     0 4px 24px rgba(0,0,0,0.10);
-  --shadow-lg:  0 12px 48px rgba(0,0,0,0.16);
+  color-scheme: light;
+  --bg:         #ffffff;
+  --bg2:        #f7f7f7;
+  --bg3:        #eeeeee;
+  --bg4:        #e4e4e4;
+  --border:     rgba(0,0,0,0.10);
+  --border2:    rgba(0,0,0,0.20);
+  --text:       #101010;
+  --text2:      rgba(0,0,0,0.72);
+  --text3:      rgba(0,0,0,0.48);
+  --text4:      rgba(0,0,0,0.28);
+  --gold:       #111111;
+  --accent-text: #ffffff;
+  --gold-light: #333333;
+  --gold-bg:    rgba(0,0,0,0.06);
+  --gold-bd:    rgba(0,0,0,0.20);
+  --danger:     #333333;
+  --danger-bg:  rgba(0,0,0,0.06);
+  --success:    #222222;
+  --nav-bg:     rgba(255,255,255,0.82);
+  --nav-raised: rgba(255,255,255,0.98);
+  --footer-bg:  #eeeeee;
+  --shadow:     0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg:  0 12px 48px rgba(0,0,0,0.14);
 }
 
 html, body { height: 100%; }
@@ -338,6 +449,15 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 a { color: inherit; text-decoration: none; }
+
+/* Konsistensi kontras teks dan kontrol pada kedua tema */
+button, input, textarea, select { font: inherit; }
+::selection { background: var(--text); color: var(--bg); }
+button:focus-visible, a:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -353,11 +473,11 @@ a { color: inherit; text-decoration: none; }
   padding: 5px 13px; border-radius: 50px;
 }
 .tag-gold { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold-bd); }
-.tag-fire { background: rgba(212,94,50,0.12); color: #d45e32; border: 1px solid rgba(212,94,50,0.25); }
+.tag-fire { background: var(--gold-bg); color: var(--text2); border: 1px solid var(--border2); }
 
 .btn-primary {
   display: inline-flex; align-items: center; gap: 7px;
-  font-size: 14px; font-weight: 600; background: var(--gold); color: #0e0e0e;
+  font-size: 14px; font-weight: 600; background: var(--gold); color: var(--accent-text);
   border: none; padding: 10px 22px; border-radius: 50px; cursor: pointer;
   text-decoration: none; transition: all 0.2s; white-space: nowrap;
 }
@@ -403,11 +523,11 @@ a { color: inherit; text-decoration: none; }
 
 .del-btn {
   width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
-  background: var(--danger-bg); border: 1px solid rgba(229,115,115,0.2);
+  background: var(--danger-bg); border: 1px solid var(--border2);
   color: var(--danger); cursor: pointer; transition: all 0.15s;
   display: flex; align-items: center; justify-content: center; font-size: 15px;
 }
-.del-btn:hover { background: rgba(229,115,115,0.22); }
+.del-btn:hover { background: var(--bg4); }
 .del-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .add-btn {
@@ -524,7 +644,7 @@ a { color: inherit; text-decoration: none; }
 }
 .mob-item:hover { background: var(--bg3); color: var(--text); }
 .mob-item--danger { color: var(--danger); }
-.mob-item--cta { background: var(--gold); color: #0e0e0e; border-radius: 50px; justify-content: center; margin-top: 8px; font-weight: 600; }
+.mob-item--cta { background: var(--gold); color: var(--accent-text); border-radius: 50px; justify-content: center; margin-top: 8px; font-weight: 600; }
 .mob-theme-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 14px; border-top: 1px solid var(--border); margin-top: 8px;
@@ -552,9 +672,9 @@ a { color: inherit; text-decoration: none; }
 }
 .cb-fab {
   width: 54px; height: 54px; border-radius: 50%;
-  background: var(--gold); border: none; color: #0e0e0e;
+  background: var(--gold); border: none; color: var(--accent-text);
   font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 28px rgba(212,168,83,0.4); transition: all 0.2s;
+  box-shadow: var(--shadow); transition: all 0.2s;
 }
 .cb-fab:hover { transform: scale(1.08); }
 .cb-fab.is-open { background: var(--bg3); color: var(--text); }
@@ -596,6 +716,31 @@ a { color: inherit; text-decoration: none; }
   align-self: flex-end; background: var(--gold-bg);
   border: 1px solid var(--gold-bd); color: var(--text); border-bottom-right-radius: 4px;
 }
+.cb-chat-images {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px; min-width: 150px; max-width: 230px;
+}
+.cb-chat-image {
+  display: block; width: 100%; height: 105px; object-fit: cover;
+  border-radius: 9px; border: 1px solid var(--gold-bd);
+}
+.cb-selected-images {
+  padding: 9px; border: 1px solid var(--gold-bd);
+  border-radius: 11px; background: var(--gold-bg);
+}
+.cb-selected-heading {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 8px; color: var(--text2); font-size: 11px;
+}
+.cb-clear-images {
+  border: 0; background: transparent; color: var(--danger);
+  font: inherit; cursor: pointer;
+}
+.cb-preview-list { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; }
+.cb-preview-image {
+  width: 66px; height: 66px; flex: 0 0 66px; object-fit: cover;
+  border-radius: 8px; border: 1px solid var(--border2);
+}
 .bubble-bot {
   align-self: flex-start; background: var(--bg3);
   border: 1px solid var(--border); color: var(--text2); border-bottom-left-radius: 4px;
@@ -626,21 +771,22 @@ a { color: inherit; text-decoration: none; }
 .cb-input::placeholder { color: var(--text4); }
 .cb-send {
   width: 38px; height: 38px; border-radius: 50%; background: var(--gold); border: none;
-  color: #0e0e0e; font-size: 14px; cursor: pointer; flex-shrink: 0;
+  color: var(--accent-text); font-size: 14px; cursor: pointer; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; transition: background 0.15s;
 }
 .cb-send:hover { background: var(--gold-light); }
 .cb-send:disabled { opacity: 0.4; cursor: not-allowed; }
 .cb-imgrow {
-  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
   font-size: 12px; color: var(--text3); background: var(--bg3);
   border: 1.5px dashed var(--border2); border-radius: 10px; padding: 8px 12px; transition: all 0.15s;
 }
-.cb-imgrow:hover { border-color: var(--gold); color: var(--text2); }
-.cb-imgrow i { font-size: 15px; color: var(--gold); }
+.cb-imglabel { display: flex; align-items: center; gap: 8px; cursor: pointer; min-width: 0; }
+.cb-imglabel:hover { color: var(--text2); }
+.cb-imglabel i { font-size: 15px; color: var(--gold); }
 .cb-imgbtn {
   margin-left: auto; background: var(--gold); border: none;
-  color: #0e0e0e; font-size: 12px; font-weight: 600;
+  color: var(--accent-text); font-size: 12px; font-weight: 600;
   padding: 5px 12px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; gap: 4px;
 }
 .cb-pop-enter-active, .cb-pop-leave-active { transition: all 0.26s cubic-bezier(0.4,0,0.2,1); }

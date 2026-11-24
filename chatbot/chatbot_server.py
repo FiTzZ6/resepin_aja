@@ -18,7 +18,7 @@ app = Flask(__name__)
 lemmatizer = WordNetLemmatizer()
 
 # --- Load model dan data NLP ---
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "model.h5")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "model.keras")
 try:
     model = load_model(MODEL_PATH)
     print("Model berhasil dimuat!")
@@ -488,5 +488,5 @@ def predict_image_endpoint():
 
 
 if __name__ == "__main__":
-    print("🚀 Chatbot server running on port 5001...")
+    print("🚀 Chatbot server running on port 5000...")
     app.run(port=5000, debug=False)

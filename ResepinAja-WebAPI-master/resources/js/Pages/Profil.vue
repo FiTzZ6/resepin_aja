@@ -53,46 +53,127 @@ document.title = `${data.userProfile.username} – Resepin Aja`;
 
 <style scoped>
 .profile-hero {
-  position: relative; margin: 0 -24px; padding: 60px 24px 40px;
-  border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 48px;
+  position: relative;
+  margin: 0 -24px 48px;
+  padding: 60px 24px 40px;
   overflow: hidden;
+  background: var(--bg2, #343434);
+  border-bottom: 1px solid var(--border, rgba(255,255,255,.12));
+  color: var(--text, #f7f7f7);
 }
 .profile-hero-bg {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 60% 0%, rgba(212,168,83,0.08) 0%, transparent 70%);
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 0%, var(--gold-bg, rgba(255,255,255,.08)) 0%, transparent 70%);
+  pointer-events: none;
 }
 .profile-hero-content {
-  position: relative; z-index: 2; max-width: 1400px; margin: 0 auto;
-  display: flex; align-items: center; gap: 32px;
+  position: relative;
+  z-index: 2;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 32px;
 }
 .profile-avatar-wrap { flex-shrink: 0; }
 .profile-avatar {
-  width: 110px; height: 110px; border-radius: 50%;
-  background: linear-gradient(135deg,rgba(212,168,83,0.2),rgba(212,168,83,0.05));
-  border: 2px solid rgba(212,168,83,0.4);
-  display: flex; align-items: center; justify-content: center;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg4, #505050), var(--bg2, #343434));
+  border: 2px solid var(--border2, rgba(255,255,255,.22));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow, 0 4px 24px rgba(0,0,0,.2));
 }
-.profile-avatar-letter { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; color: #d4a853; }
-.profile-meta { flex: 1; }
-.profile-username { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: #f0ece4; margin: 0 0 8px; }
-.profile-bio { font-size: 15px; color: rgba(240,236,228,0.5); margin: 0 0 20px; line-height: 1.65; max-width: 480px; }
+.profile-avatar-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text, #f7f7f7);
+}
+.profile-meta { flex: 1; min-width: 0; }
+.profile-username {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text, #f7f7f7);
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.profile-bio {
+  font-size: 15px;
+  color: var(--text3, rgba(255,255,255,.62));
+  margin: 0 0 20px;
+  line-height: 1.65;
+  max-width: 480px;
+  overflow-wrap: anywhere;
+}
 .profile-stats { display: flex; gap: 28px; }
 .pstat { display: flex; flex-direction: column; }
-.pstat-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: #d4a853; line-height: 1; }
-.pstat-lbl { font-size: 12px; color: rgba(240,236,228,0.4); font-weight: 500; margin-top: 2px; }
-
-.profile-resep { padding-bottom: 80px; }
+.pstat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--gold, #dedede);
+  line-height: 1;
+}
+.pstat-lbl {
+  font-size: 12px;
+  color: var(--text3, rgba(255,255,255,.62));
+  font-weight: 500;
+  margin-top: 4px;
+}
+.profile-resep { padding-bottom: 80px; color: var(--text, #f7f7f7); }
 .section-header { margin-bottom: 28px; }
-.section-h2 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: #f0ece4; margin: 0; }
-.section-h2 em { color: #d4a853; font-style: italic; }
+.section-h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text, #f7f7f7);
+  margin: 0;
+}
+.section-h2 em { color: var(--gold, #dedede); font-style: italic; }
+.resep-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+  gap: 20px;
+}
+.empty-profile {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--text3, rgba(255,255,255,.62));
+  background: var(--bg2, #343434);
+  border: 1px solid var(--border, rgba(255,255,255,.12));
+  border-radius: var(--radius-lg, 20px);
+}
+.empty-profile i {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+  color: var(--text4, rgba(255,255,255,.42));
+}
+.empty-profile p { margin: 0; color: var(--text2, rgba(255,255,255,.82)); }
 
-.resep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 20px; }
-.empty-profile { text-align: center; padding: 64px; color: rgba(240,236,228,0.3); }
-.empty-profile i { font-size: 48px; display: block; margin-bottom: 12px; color: rgba(212,168,83,0.25); }
+/* Pastikan tampilan mengikuti pilihan tema dari App.vue. */
+:global(html[data-theme="light"]) .profile-hero {
+  background: var(--bg2, #e4e4e4);
+}
+:global(html[data-theme="light"]) .profile-avatar {
+  background: linear-gradient(135deg, var(--bg3, #d8d8d8), var(--bg2, #e4e4e4));
+}
+:global(html[data-theme="light"]) .empty-profile {
+  background: var(--bg2, #e4e4e4);
+}
 
 @media (max-width: 640px) {
-  .profile-hero-content { flex-direction: column; text-align: center; }
+  .profile-hero { margin-left: -16px; margin-right: -16px; padding: 40px 16px 32px; }
+  .profile-hero-content { flex-direction: column; text-align: center; gap: 20px; }
   .profile-bio { margin-left: auto; margin-right: auto; }
   .profile-stats { justify-content: center; }
+  .profile-username { font-size: 2rem; }
+  .section-h2 { font-size: 1.6rem; }
 }
 </style>

@@ -1,0 +1,38 @@
+               precision    recall  f1-score   support
+
+bawang_bombai      0.864     0.760     0.809        25
+ bawang_merah      0.625     0.600     0.612        25
+ bawang_putih      0.657     0.920     0.767        25
+        bayam      0.941     0.667     0.780        24
+  cabai_hijau      0.905     0.950     0.927        20
+  cabai_merah      0.815     0.917     0.863        24
+  cabai_rawit      0.850     0.850     0.850        20
+  daging_ayam      0.885     0.920     0.902        25
+  daging_sapi      1.000     1.000     1.000        20
+  daun_bawang      0.818     0.720     0.766        25
+   daun_jeruk      0.733     0.880     0.800        25
+   gula_merah      0.682     0.750     0.714        20
+       jagung      1.000     0.960     0.980        25
+         jahe      0.778     0.840     0.808        25
+ kacang_hitam      1.000     1.000     1.000        25
+      keluwak      0.958     0.920     0.939        25
+ kembang_turi      0.742     0.920     0.821        25
+       kemiri      0.889     0.960     0.923        25
+      kentang      0.857     0.480     0.615        25
+       kunyit      0.864     0.760     0.809        25
+        lemon      0.870     0.800     0.833        25
+     lengkuas      0.833     0.800     0.816        25
+         madu      0.955     0.840     0.894        25
+      mentega      1.000     0.800     0.889        25
+      paprika      0.857     0.960     0.906        25
+       santan      0.750     0.960     0.842        25
+        serai      0.808     0.840     0.824        25
+        telur      0.821     0.958     0.885        24
+       terong      1.000     0.960     0.980        25
+        timun      0.889     0.960     0.923        25
+        tomat      0.900     0.750     0.818        24
+       wortel      1.000     0.880     0.936        25
+
+     accuracy                          0.852       776
+    macro avg      0.861     0.853     0.851       776
+ weighted avg      0.861     0.852     0.850       776
